@@ -166,6 +166,8 @@ typedef union idt_desc_t {
 extern idt_desc_t idt[NUM_VEC];
 /* The descriptor used to load the IDTR */
 extern x86_desc_t idt_desc_ptr;
+// The descriptor used to load the GDTR
+extern x86_desc_t gdt_desc_ptr;
 
 /* Sets runtime parameters for an IDT entry */
 #define SET_IDT_ENTRY(str, handler)                              \
@@ -195,6 +197,20 @@ do {                                    \
 #define lidt(desc)                      \
 do {                                    \
     asm volatile ("lidt (%0)"           \
+            :                           \
+            : "g" (desc)                \
+            : "memory"                  \
+    );                                  \
+} while (0)
+
+/* Load the global descriptor table (GDT).  This macro takes a 32-bit
+ * address which points to a 6-byte structure.  The 6-byte structure
+ * (defined as "struct x86_desc" above) contains a 2-byte size field
+ * specifying the size of the GDT, and a 4-byte address field specifying
+ * the base address of the GDT. */
+#define lgdt(desc)                      \
+do {                                    \
+    asm volatile ("lgdt (%0)"           \
             :                           \
             : "g" (desc)                \
             : "memory"                  \
