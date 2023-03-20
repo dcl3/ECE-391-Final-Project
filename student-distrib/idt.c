@@ -21,7 +21,7 @@ void idt_init(void) {
             idt[i].size = 1;
             idt[i].reserved0 = 0;
             idt[i].dpl = DPL_KERNEL;
-            idt[i].present = 1;
+            idt[i].present = 0;
         } else {
             idt[i].seg_selector = KERNEL_CS;
             idt[i].reserved4 = 0;
@@ -31,35 +31,54 @@ void idt_init(void) {
             idt[i].size = 1;
             idt[i].reserved0 = 0;
             idt[i].dpl = DPL_KERNEL;
-            idt[i].present = 1;
+            idt[i].present = 0;
         }
     }
 
+    idt[DE].present = 1;
     SET_IDT_ENTRY(idt[DE], de);
+    idt[DB].present = 1;
     SET_IDT_ENTRY(idt[DB], db);
+    idt[NMI].present = 1;
     SET_IDT_ENTRY(idt[NMI], nmi);
+    idt[BP].present = 1;
     SET_IDT_ENTRY(idt[BP], bp);
+    idt[OF].present = 1;
     SET_IDT_ENTRY(idt[OF], of);
+    idt[BR].present = 1;
     SET_IDT_ENTRY(idt[BR], br);
+    idt[UD].present = 1;
     SET_IDT_ENTRY(idt[UD], ud);
+    idt[NM].present = 1;
     SET_IDT_ENTRY(idt[NM], nm);
+    idt[DF].present = 1;
     SET_IDT_ENTRY(idt[DF], df);
+    idt[CSO].present = 1;
     SET_IDT_ENTRY(idt[CSO], cso);
+    idt[TS].present = 1;
     SET_IDT_ENTRY(idt[TS], ts);
+    idt[NP].present = 1;
     SET_IDT_ENTRY(idt[NP], np);
+    idt[SFE].present = 1;
     SET_IDT_ENTRY(idt[SFE], sfe);
+    idt[GP].present = 1;
     SET_IDT_ENTRY(idt[GP], gp);
+    idt[PF].present = 1;
     SET_IDT_ENTRY(idt[PF], pf);
+    idt[MF].present = 1;
     SET_IDT_ENTRY(idt[MF], mf);
+    idt[AC].present = 1;
     SET_IDT_ENTRY(idt[AC], ac);
+    idt[MC].present = 1;
     SET_IDT_ENTRY(idt[MC], mc);
+    idt[XF].present = 1;
     SET_IDT_ENTRY(idt[XF], xf);
 
     // modify idt entry for system call
     idt[SYS_CALL].reserved3 = 1;
     idt[SYS_CALL].dpl = DPL_USER;
+    idt[SYS_CALL].present = 1;
     SET_IDT_ENTRY(idt[SYS_CALL], sys_call);
-
 }
 
 void de(void) {
@@ -158,6 +177,6 @@ void xf(void) {
 }
 
 void sys_call(void) {
-    printf("System Call");
+    printf("System Call\n");
     while(1){};
 }
