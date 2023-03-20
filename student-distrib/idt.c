@@ -55,6 +55,11 @@ void idt_init(void) {
     SET_IDT_ENTRY(idt[MC], mc);
     SET_IDT_ENTRY(idt[XF], xf);
 
+    // modify idt entry for system call
+    idt[SYS_CALL].reserved3 = 1;
+    idt[SYS_CALL].dpl = DPL_USER;
+    SET_IDT_ENTRY(idt[SYS_CALL], sys_call);
+
 }
 
 void de(void) {
@@ -149,5 +154,10 @@ void mc(void) {
 
 void xf(void) {
     printf("SIMD Floating-Point Exception\n");
+    while(1){};
+}
+
+void sys_call(void) {
+    printf("System Call");
     while(1){};
 }

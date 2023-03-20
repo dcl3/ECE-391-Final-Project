@@ -8,6 +8,7 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
+#include "idt.h"
 
 #define RUN_TESTS
 
@@ -136,6 +137,10 @@ void entry(unsigned long magic, unsigned long addr) {
         ltr(KERNEL_TSS);
     }
 
+    // printf("idt init\n");
+    idt_init();
+
+    // printf("pic init\n");
     /* Init the PIC */
     i8259_init();
 
@@ -151,7 +156,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-    // launch_tests();
+    launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 
