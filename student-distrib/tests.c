@@ -45,6 +45,45 @@ int idt_test(){
 	return result;
 }
 
+/* Division Test
+ * 
+ * Asserts that first 10 IDT entries are not NULL
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Load IDT, IDT definition
+ * Files: x86_desc.h/S
+ */
+int divison_test(){
+	TEST_HEADER;
+    int test = 0;
+	int result = PASS;
+
+    test = 0 / test;
+
+	return result;
+}
+
+/* System Call Test
+ * 
+ * Asserts that first 10 IDT entries are not NULL
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Load IDT, IDT definition
+ * Files: x86_desc.h/S
+ */
+int system_call_test(){
+	TEST_HEADER;
+
+	int result = PASS;
+
+    asm volatile("int $0x80");
+
+	return result;
+}
+
+
 // add more tests here
 
 /* Checkpoint 2 tests */
@@ -55,6 +94,9 @@ int idt_test(){
 
 /* Test suite entry point */
 void launch_tests(){
+    clear();
 	TEST_OUTPUT("idt_test", idt_test());
+    // TEST_OUTPUT("divison_test", divison_test());
+    TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
 }
