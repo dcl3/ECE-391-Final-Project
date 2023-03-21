@@ -8,7 +8,7 @@
 
 #define RTC_REGISTER_A      0x8A
 #define RTC_REGISTER_B      0x8B
-#define RTC_REGISTER_C      0x8C
+#define RTC_REGISTER_C      0x0C
 
 #define RTC_DEFAULT_RATE    0x06
 
