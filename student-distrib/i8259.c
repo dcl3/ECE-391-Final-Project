@@ -88,7 +88,7 @@ void send_eoi(uint32_t irq_num) {
         outb(EOI | IR2, MASTER_8259_PORT);
     } else {
         // EOI for just master
-        printf("here");
+        // printf("here");
         outb(EOI | irq_num, MASTER_8259_PORT);
     }
 }

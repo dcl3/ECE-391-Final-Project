@@ -17,24 +17,29 @@ static const unsigned short keyboard_scancode_set1[ALPHA_NUMERIC] = {
 
 void keyboard_init() {
     // Enable interrupts for the keyboard
+    clear();
     enable_irq(KEYBOARD_IRQ_NUM);
 }
 
 extern void keyboard_handler() {
     // Set critical section
-    cli();
+    // cli();
+    uint8_t scancode;
 
     // Read the scancode from the keyboard
-    uint8_t scancode = inb(KEYBOARD_DATA_PORT);
+    scancode = inb(KEYBOARD_DATA_PORT);
 
     // Handle the scancode
-    if (scancode >= ALPHA_NUMERIC) return;  // Invalid scancode
-
-    // Print the character
-    putc(keyboard_scancode_set1[scancode]);
+    if (scancode >= ALPHA_NUMERIC) {
+        send_eoi(KEYBOARD_IRQ_NUM);
+        return;  // Invalid scancode
+    } else {
+        // Print the character
+        putc(keyboard_scancode_set1[scancode]);
+    }
 
     // Exit critical section
-    sti();
+    // sti();
 
     send_eoi(KEYBOARD_IRQ_NUM);
 
