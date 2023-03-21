@@ -95,8 +95,8 @@ int system_call_test(){
 int page_fault_test(){
 	TEST_HEADER;
 	int result = PASS;
-	int test;
-	int i = *(int*)0;
+	int *test;
+	int *i = 0;
 
     memcpy(test, i, 4);
 
@@ -119,5 +119,5 @@ void launch_tests(){
     // TEST_OUTPUT("divison_test", divison_test());
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
-    TEST_OUTPUT("page_fault_test", page_fault_test());
+    // TEST_OUTPUT("page_fault_test", page_fault_test());
 }
