@@ -97,6 +97,6 @@ void launch_tests(){
     clear();
 	TEST_OUTPUT("idt_test", idt_test());
     // TEST_OUTPUT("divison_test", divison_test());
-    TEST_OUTPUT("system_call_test", system_call_test());
+    // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
 }

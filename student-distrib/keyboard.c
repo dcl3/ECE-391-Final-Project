@@ -15,12 +15,12 @@ static const unsigned short keyboard_scancode_set1[ALPHA_NUMERIC] = {
     0, /* All other keys are undefined */
 };
 
-void init_keyboard() {
+void keyboard_init() {
     // Enable interrupts for the keyboard
     enable_irq(KEYBOARD_IRQ_NUM);
 }
 
-extern void keyboard_interrupt_handler() {
+extern void keyboard_handler() {
     // Set critical section
     cli();
 
