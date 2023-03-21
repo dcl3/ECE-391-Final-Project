@@ -43,6 +43,16 @@ mapping properly.
 ___________________________________________________________________________
 
 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 4                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+The keyboard and the rtc was not working properly. The problem was that the
+interrupt was not working properly and it was only handling a single interrupt.
+We realized that we did not include the linkages for the interrupt handlers
+so the c calling convention was messing up the interrupts.
+___________________________________________________________________________
+
+
 
 
 *Checkpoint 2:
