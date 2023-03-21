@@ -5,38 +5,21 @@
 #include "types.h"
 #include "lib.h"
 
-#define KERNEL_ADDR 0x400000
+#define NUM_ENTRIES 1024
 
+#define KERNEL_ADDR 0x00400000
+#define FOUR_KB 0x00001000
 
-// typedef struct page_directory_entry {
-//     uint32_t p : 1;       
-//     uint32_t rw : 1;            
-//     uint32_t us : 1;            
-//     uint32_t pwt : 1; 
-//     uint32_t pcd : 1;       
-//     uint32_t a : 1;      
-//     uint32_t d : 1;      
-//     uint32_t ps : 1;     
-//     uint32_t g : 1;             
-//     uint32_t avl : 3;       // bit 9:11
-//     uint32_t pat : 20;      // bit 12:31
-// } __attribute__ ((packed)) page_dir;
+#define UPPER_TEN 0xffc00000
+#define UPPER_TWENTY 0xfffff00
 
+#define READ_WRITE_P 0x3
+#define READ_WRITE_P_FOUR_MB 0x83
 
-// typedef struct page_table_entry {
-//     uint32_t p : 1;       
-//     uint32_t rw : 1;            
-//     uint32_t us : 1;            
-//     uint32_t pwt : 1; 
-//     uint32_t pcd : 1;       
-//     uint32_t a : 1;      
-//     uint32_t d : 1;      
-//     uint32_t ps : 1;     
-//     uint32_t g : 1;             
-//     uint32_t avl : 3;       // bit 9:11
-//     uint32_t pat : 20;      // bit 12:31
-// } __attribute__ ((packed)) page_table;
+uint32_t page_directory[1024] __attribute__((aligned(4096)));
 
-extern void load_enable_paging(unsigned int*);
+uint32_t page_table[1024] __attribute__((aligned(4096)));
 
 extern void paging_init();
+
+extern void load_enable_paging(unsigned int*);
