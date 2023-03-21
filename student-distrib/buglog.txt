@@ -3,7 +3,13 @@ ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
                                 BUG LOG 1                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-
+Only one of the character was typed to the screen when we enable the
+keyboard init and keyboard_handler. We have some trouble to find where the
+bug was located, and we ask TA during the office hour, and found out that
+the keyboard handler portion where we check if the scancode is within the 
+alphanurmeric range was preventing an eoi if we just return. So we made a
+change to that portion of the code, by adding some if statements and send 
+eoi functionalities. 
 ___________________________________________________________________________
 
 
