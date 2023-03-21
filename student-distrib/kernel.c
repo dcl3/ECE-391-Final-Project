@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "tests.h"
 #include "idt.h"
+#include "keyboard.h"
 #include "rtc.h"
 
 #define RUN_TESTS
@@ -145,8 +146,11 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init the PIC */
     i8259_init();
 
+
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
+
+    keyboard_init();
 
     rtc_init();
 
@@ -156,6 +160,12 @@ void entry(unsigned long magic, unsigned long addr) {
      * without showing you any output */
     printf("Enabling Interrupts\n");
     sti();
+
+    for (;;) {
+        asm("hlt");
+    }
+
+    while(1){};
 
 #ifdef RUN_TESTS
     /* Run tests */
