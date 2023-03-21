@@ -4,33 +4,25 @@
 
 #include "paging.h"
 
-void paging_init(){
-    //set each entry to not present
-    int i;
-    for(i = 0; i < 1024; i++)
-    {
-        // This sets the following flags to the pages:
-        //   Supervisor: Only kernel-mode can access them
-        //   Write Enabled: It can be both read from and written to
-        //   Not Present: The page table is not present
-        page_directory[i] = 0x00000002;
+uint32_t page_directory[1024] __attribute__((aligned(4096)));
+
+uint32_t page_table[1024] __attribute__((aligned(4096)));
+
+void paging_init() {
+    unsigned int i;
+
+    // Clear the page directory and page table entries
+    for (i = 0; i < 1024; i++) {
+        page_directory[i] = 0;
+        page_table[i] = 0;
     }
 
-    // holds the physical address where we want to start mapping these pages to.
-    // in this case, we want to map these pages to the very beginning of memory.
-    
-    //we will fill all 1024 entries in the table, mapping 4 megabytes
-    for(i = 0; i < 1024; i++)
-    {
-        // As the address is page aligned, it will always leave 12 bits zeroed.
-        // Those bits are used by the attributes ;)
-        first_page_table[i] = (i * 0x1000) | 3; // attributes: supervisor level, read/write, present.
-    }
+    page_directory[0] = ((unsigned int) page_table) | 0x3;
+    page_directory[1] = (KERNEL_ADDR & 0xffc00000) | 0x83;
 
-    // attributes: supervisor level, read/write, present
-    page_directory[0] = ((unsigned int)first_page_table) | 3;
+    // Map the first 4MB of physical memory to virtual address 0
+    // page_table[0] = 0x00000007; // Present, Read/Write, User/Supervisor
 
-    loadPageDirectory(page_directory);
-    enablePaging();
-
+    // Enable paging
+    load_enable_paging(&page_directory);
 }

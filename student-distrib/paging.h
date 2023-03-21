@@ -5,6 +5,8 @@
 #include "types.h"
 #include "lib.h"
 
+#define KERNEL_ADDR 0x400000
+
 
 // typedef struct page_directory_entry {
 //     uint32_t p : 1;       
@@ -35,12 +37,6 @@
 //     uint32_t pat : 20;      // bit 12:31
 // } __attribute__ ((packed)) page_table;
 
-uint32_t page_directory[1024] __attribute__((aligned(4096)));
-
-uint32_t first_page_table[1024] __attribute__((aligned(4096)));
-
-extern void loadPageDirectory(unsigned int*);
-
-extern void enablePaging();
+extern void load_enable_paging(unsigned int*);
 
 extern void paging_init();
