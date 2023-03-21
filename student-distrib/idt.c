@@ -87,7 +87,7 @@ void idt_init(void) {
     SET_IDT_ENTRY(idt[0x21], keyboard_handler_linkage);
 
     idt[0x28].present = 1;
-    SET_IDT_ENTRY(idt[0x28], rtc_handler);
+    SET_IDT_ENTRY(idt[0x28], rtc_handler_linkage);
 }
 
 void de(void) {
