@@ -6,6 +6,7 @@
 #include "lib.h"
 #include "x86_desc.h"
 #include "keyboard.h"
+#include "interrupt_link.h"
 
 /* Initialize the idt */
 void idt_init(void) {
@@ -82,7 +83,7 @@ void idt_init(void) {
     SET_IDT_ENTRY(idt[SYS_CALL], sys_call);
 
     idt[0x21].present = 1;
-    SET_IDT_ENTRY(idt[0x21], keyboard_handler);
+    SET_IDT_ENTRY(idt[0x21], keyboard_handler_linkage);
 }
 
 void de(void) {
