@@ -6,6 +6,7 @@
 #include "lib.h"
 
 #define NUM_ENTRIES 1024
+#define PAGE_SIZE 4096
 
 #define KERNEL_ADDR 0x00400000
 #define FOUR_KB 0x00001000
@@ -18,9 +19,9 @@
 
 #define VIDEO_ADDR 0xb8000
 
-uint32_t page_directory[1024] __attribute__((aligned(4096)));
+uint32_t page_directory[NUM_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
 
-uint32_t page_table[1024] __attribute__((aligned(4096)));
+uint32_t page_table[NUM_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
 
 // initialize paging
 extern void paging_init();
