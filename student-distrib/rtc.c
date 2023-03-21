@@ -25,14 +25,15 @@ void rtc_init(void){
     enable_irq(RTC_IRQ_NUMBER);
 
     /* "Changing the output divider changes the interrupt rate, without interfering with the RTC's ability to keep proper time." */
-    char rate = RTC_DEFAULT_RATE;               // rate must be above 2 and not over 15
+    // char rate = RTC_DEFAULT_RATE;               // rate must be above 2 and not over 15
+    char rate = RTC_SLOWEST_RATE;               // 15 slowest, and 3 fastest
     
-    rate &= 0x0F;			
+    rate &= RTC_RATE_MASK;			
     cli();                                      // disable interrupts ...
     outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // set index to register A, disable NMI
     prev = inb(RTC_DATA_PORT);	                // get initial value of register A
     outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // reset index to A
-    outb((prev & 0xF0) | rate, RTC_DATA_PORT);  // write only our rate to A. Note, rate is the bottom 4 bits.
+    outb((prev & RTC_REG_A_MASK) | rate, RTC_DATA_PORT);    // write only our rate to A. Note, rate is the bottom 4 bits.
     sti();                                      // enable interrupts ...
 
 }
