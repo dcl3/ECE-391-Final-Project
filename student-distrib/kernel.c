@@ -158,6 +158,12 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     sti();
 
+    for (;;) {
+        asm("hlt");
+    }
+
+    while(1){};
+
 #ifdef RUN_TESTS
     /* Run tests */
     // launch_tests();

@@ -33,9 +33,10 @@ extern void keyboard_handler() {
     // Print the character
     putc(keyboard_scancode_set1[scancode]);
 
-
-    send_eoi(KEYBOARD_IRQ_NUM);
     // Exit critical section
     sti();
 
+    send_eoi(KEYBOARD_IRQ_NUM);
+
+    return;
 }
