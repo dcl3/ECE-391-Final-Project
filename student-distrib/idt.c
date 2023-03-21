@@ -94,11 +94,11 @@ void idt_init(void) {
 
     // modify idt entry for keyboard
     idt[0x21].present = 1;
-    SET_IDT_ENTRY(idt[0x21], keyboard_handler_linkage);
+    SET_IDT_ENTRY(idt[KEYBOARD_ENTRY], keyboard_handler_linkage);
 
     // modify idt entry for rtc
     idt[0x28].present = 1;
-    SET_IDT_ENTRY(idt[0x28], rtc_handler_linkage);
+    SET_IDT_ENTRY(idt[RTC_ENTRY], rtc_handler_linkage);
 }
 
 /* Our approaches to IDT exceptions is to create separate exception functions */
