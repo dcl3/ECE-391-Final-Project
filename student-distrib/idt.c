@@ -5,6 +5,7 @@
 #include "idt.h"
 #include "lib.h"
 #include "x86_desc.h"
+#include "rtc.h"
 
 /* Initialize the idt */
 void idt_init(void) {
@@ -79,6 +80,9 @@ void idt_init(void) {
     idt[SYS_CALL].dpl = DPL_USER;
     idt[SYS_CALL].present = 1;
     SET_IDT_ENTRY(idt[SYS_CALL], sys_call);
+
+    idt[0x28].present = 1;
+    SET_IDT_ENTRY(idt[0x28], rtc_handler);
 }
 
 void de(void) {

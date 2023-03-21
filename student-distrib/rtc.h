@@ -10,11 +10,11 @@
 #define RTC_REGISTER_B      0x8B
 #define RTC_REGISTER_C      0x8C
 
-#define RTC_DEFAULT_RATE    0b0110
+#define RTC_DEFAULT_RATE    0x06
 
 
 /* initialize the rtc processor*/
-void init_rtc(void);
+void rtc_init(void);
 
 /* set up the rtc handler*/
 void rtc_handler(void);

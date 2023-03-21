@@ -1,9 +1,10 @@
 #include "rtc.h"
+#include "lib.h"
 
 
 
 /* 
- * init_rtc
+ * rtc_init
  *   DESCRIPTION: initialize the rtc
  *   INPUTS: none
  *   OUTPUTS: none
@@ -12,7 +13,7 @@
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
-void init_rtc(void){
+void rtc_init(void){
     /* To turn on the periodic interrupt */
     cli();                                      // diable interrupts ...
     outb(RTC_REGISTER_B, RTC_IDX_PORT);		    // select register B, and disable NMI
@@ -53,6 +54,8 @@ void rtc_handler(void){
     /* What is important is that if register C is not read after an IRQ 8, then the interrupt will not happen again*/
     outb(RTC_REGISTER_C, RTC_IDX_PORT);     // select register C
     inb(RTC_DATA_PORT);                     // just throw away contents
+
+    test_interrupts();
 
     send_eoi(RTC_IRQ_NUMBER);               // send eoi of irq 8
 }
