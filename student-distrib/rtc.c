@@ -9,7 +9,6 @@
  *   INPUTS: none
  *   OUTPUTS: none
  *   RETURN VALUE: none
- *   SIDE EFFECTS: 
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
@@ -19,7 +18,7 @@ void rtc_init(void){
     outb(RTC_REGISTER_B, RTC_IDX_PORT);		    // select register B, and disable NMI
     char prev = inb(RTC_DATA_PORT);	            // read the current value of register B
     outb(RTC_REGISTER_B, RTC_IDX_PORT);		    // set the index again (a read will reset the index to register D)
-    outb(prev | 0x40, RTC_DATA_PORT);	        // write the previous value ORed with 0x40. This turns on bit 6 of register B
+    outb(prev | RTC_BIT_6, RTC_DATA_PORT);	    // write the previous value ORed with 0x40. This turns on bit 6 of register B
     sti();                                      // enable interrupts...
 
     /* Turning on IRQ 8 */
@@ -33,7 +32,7 @@ void rtc_init(void){
     outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // set index to register A, disable NMI
     prev = inb(RTC_DATA_PORT);	                // get initial value of register A
     outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // reset index to A
-    outb((prev & 0xF0) | rate, RTC_DATA_PORT);  //write only our rate to A. Note, rate is the bottom 4 bits.
+    outb((prev & 0xF0) | rate, RTC_DATA_PORT);  // write only our rate to A. Note, rate is the bottom 4 bits.
     sti();                                      // enable interrupts ...
 
 }
@@ -46,7 +45,6 @@ void rtc_init(void){
  *   INPUTS: none
  *   OUTPUTS: none
  *   RETURN VALUE: none
- *   SIDE EFFECTS: 
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
@@ -55,7 +53,7 @@ void rtc_handler(void){
     outb(RTC_REGISTER_C, RTC_IDX_PORT);     // select register C
     inb(RTC_DATA_PORT);                     // just throw away contents
 
-    test_interrupts();
+    test_interrupts();                      // given func to test if it works 
 
     send_eoi(RTC_IRQ_NUMBER);               // send eoi of irq 8
 }

@@ -11,6 +11,7 @@
 #define RTC_REGISTER_C      0x0C
 
 #define RTC_DEFAULT_RATE    0x06
+#define RTC_BIT_6           0x40
 
 
 /* initialize the rtc processor*/
