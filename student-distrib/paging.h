@@ -1,4 +1,9 @@
+/* paging.h
+ * vim:ts=4 noexpandtab
+ */
+
 #include "types.h"
+#include "lib.h"
 
 
 // typedef struct page_directory_entry {
@@ -34,7 +39,8 @@ uint32_t page_directory[1024] __attribute__((aligned(4096)));
 
 uint32_t first_page_table[1024] __attribute__((aligned(4096)));
 
-void paging_init();
-
 extern void loadPageDirectory(unsigned int*);
+
 extern void enablePaging();
+
+extern void paging_init();

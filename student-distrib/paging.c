@@ -1,3 +1,7 @@
+/* paging.c
+ * vim:ts=4 noexpandtab
+ */
+
 #include "paging.h"
 
 void paging_init(){
@@ -30,35 +34,3 @@ void paging_init(){
     enablePaging();
 
 }
-
-void loadPageDirectory(unsigned int *pageDirectory) {
-  asm volatile (
-    "push %%ebp \n\t"
-    "mov %%esp, %%ebp \n\t"
-    "mov 8(%%esp), %%eax \n\t"
-    "mov %%eax, %%cr3 \n\t"
-    "mov %%ebp, %%esp \n\t"
-    "pop %%ebp \n\t"
-    "ret \n\t"
-    :
-    : "r" (pageDirectory)
-    : "%eax"
-  );
-}
-
-void enablePaging() {
-  asm volatile (
-    "push %%ebp \n\t"
-    "mov %%esp, %%ebp \n\t"
-    "mov %%cr0, %%eax \n\t"
-    "or $0x80000000, %%eax \n\t"
-    "mov %%eax, %%cr0 \n\t"
-    "mov %%ebp, %%esp \n\t"
-    "pop %%ebp \n\t"
-    "ret \n\t"
-    :
-    :
-    : "%eax"
-  );
-}
-
