@@ -20,7 +20,12 @@ ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
                                 BUG LOG 2                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-
+Our RTC have similiar issue as the one we had with keyboard_handler, where
+only one of interrupt was recieved by the operating system. We also asked 
+TA during the office hour regarding this issue, and she believe that its 
+reg c in RTC causing some sort of problems, we need to make sure we are 
+reading from a certain rtc register in order for it to send another 
+interrupt. Later, we found out that all we need is to add linkage.
 ___________________________________________________________________________
 
 
