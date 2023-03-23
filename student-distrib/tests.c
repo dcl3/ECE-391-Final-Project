@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "rtc.h"
 
 #define PASS 1
 #define FAIL 0
@@ -87,6 +88,26 @@ int system_call_test(){
 // add more tests here
 
 /* Checkpoint 2 tests */
+int rtc_test(){
+	TEST_HEADER;
+
+	if(rtc_open() != 0){
+		return FAIL;
+	}
+	int valid_freq[15] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+	int i;
+	for(i = 0; i < 15; i++){
+		if(rtc_write(valid_freq[i]) == -1){
+			return FAIL;
+		}
+		if(rtc_read() == 0){
+			printf("1");
+		}
+	}
+
+	return PASS;
+}
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -99,4 +120,5 @@ void launch_tests(){
     // TEST_OUTPUT("divison_test", divison_test());
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
+	TEST_OUTPUT("rtc_test", rtc_test());
 }
