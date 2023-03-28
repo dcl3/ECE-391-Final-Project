@@ -108,17 +108,24 @@ extern void keyboard_handler() {
 }
 
 
-uint8_t check_for_modifier(uint8_t scancode) {
+int32_t check_for_modifier(uint8_t scancode) {
     if(scancode == LEFT_SHIFT || scancode == RIGHT_SHIFT) {
         shift_pressed = 1;
         return 1;
     }
-    if(scancode == LEFT_CTRL || scancode == RIGHT_CTRL) {
+    if(scancode == LEFT_CTRL) {
         ctrl_pressed = 1;
         return 1;
     }
-    if(scancode == LEFT_ALT || scancode == RIGHT_ALT) {
+    if(scancode == LEFT_ALT) {
         alt_pressed = 1;
+        return 1;
+    }
+    if(scancode == BACKSPACE) {
+        if(kb_buffer_index > 0) {
+            kb_buffer_index--;
+            putc('\b');
+        }
         return 1;
     }
     if(scancode == CAPS_LOCK) {
@@ -132,11 +139,11 @@ uint8_t check_for_modifier(uint8_t scancode) {
         shift_pressed = 0;
         return 1;
     }
-    if(scancode == LEFT_CTRL_RELEASE || scancode == RIGHT_CTRL_RELEASE) {
+    if(scancode == LEFT_CTRL_RELEASE) {
         ctrl_pressed = 0;
         return 1;
     }
-    if(scancode == LEFT_ALT_RELEASE || scancode == RIGHT_ALT_RELEASE) {
+    if(scancode == LEFT_ALT_RELEASE) {
         alt_pressed = 0;
         return 1;
     }

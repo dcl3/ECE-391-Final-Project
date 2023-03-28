@@ -19,14 +19,11 @@
 #define RIGHT_SHIFT_RELEASE 0xB6
 #define LEFT_CTRL 0x1D
 #define LEFT_CTRL_RELEASE 0x9D
-#define RIGHT_CTRL 0xE01D
-#define RIGHT_CTRL_RELEASE 0xE09D
 #define LEFT_ALT 0x38
 #define LEFT_ALT_RELEASE 0xB8
-#define RIGHT_ALT 0xE038
-#define RIGHT_ALT_RELEASE 0xE0B8
 #define CAPS_LOCK 0x3A
 #define CAPS_LOCK_RELEASE 0xBA
+#define BACKSPACE 0x08
 
 
 // initialize the keyboard
@@ -35,7 +32,7 @@ void keyboard_init(void);
 // handles the interrupt from the keyboard
 extern void keyboard_handler(void);
 
-uint8_t check_for_modifier(uint8_t scancode);
+int32_t check_for_modifier(uint8_t scancode);
 
 #endif /* KEYBOARD_H */
 
