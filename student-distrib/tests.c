@@ -292,6 +292,30 @@ int rtc_test(){
 	return PASS;
 }
 
+/* Terminal Write Test
+ * 
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: terminal_write
+ * Files: terminal.c/h
+ */
+int terminal_write_test(){
+	TEST_HEADER;
+	int result = PASS;
+
+	int32_t fd;
+    uint8_t buf[20] = "test";
+    int32_t nbytes = 20;
+
+    terminal_write(fd, buf, nbytes);
+
+    // printf("%s\n", buf);
+
+	return result;
+}
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -308,5 +332,6 @@ void launch_tests(){
     // TEST_OUTPUT("dir_read_test", dir_read_test());
     // TEST_OUTPUT("small_file_read_test", small_file_read_test());
     // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
-    TEST_OUTPUT("large_file_read_test", large_file_read_test());
+    // TEST_OUTPUT("large_file_read_test", large_file_read_test());
+    TEST_OUTPUT("terminal_write_test", terminal_write_test());
 }
