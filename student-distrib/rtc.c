@@ -54,7 +54,7 @@ void rtc_handler(void){
     outb(RTC_REGISTER_C, RTC_IDX_PORT);     // select register C
     inb(RTC_DATA_PORT);                     // just throw away contents
 
-    test_interrupts();                      // given func to test if it works 
+    // test_interrupts();                      // given func to test if it works 
 
     send_eoi(RTC_IRQ_NUMBER);               // send eoi of irq 8
 }
