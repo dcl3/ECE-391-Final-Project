@@ -67,6 +67,8 @@ extern void keyboard_handler() {
     // Read the scancode from the keyboard
     scancode = inb(KEYBOARD_DATA_PORT);
 
+    unsigned short character;
+
     if(check_for_modifier(scancode)) {
         send_eoi(KEYBOARD_IRQ_NUM);
         sti();
@@ -80,17 +82,22 @@ extern void keyboard_handler() {
         sti();
         return;
     }
-    if(shift_pressed) {
-        if (keyboard_scancode_set1[scancode] >= 'a' && keyboard_scancode_set1[scancode] <= 'z') {
-            if(caps_lock_pressed)
-                putc(keyboard_scancode_set1[scancode]);
-            else
-                putc(keyboard_scancode_modified[scancode]);
-        } else {
-            // Print the character
-            putc(keyboard_scancode_modified[scancode]);
-        }
+    if (keyboard_scancode_set1[scancode] >= 'a' && keyboard_scancode_set1[scancode] <= 'z') {
+        if(caps_lock_pressed ^ shift_pressed) 
+            character = keyboard_scancode_modified[scancode];
+        else
+            character = keyboard_scancode_set1[scancode];
+    } else {
+        if(shift_pressed)
+            character = keyboard_scancode_modified[scancode];
+        else
+            character = keyboard_scancode_set1[scancode];
     }
+
+    // Send the character to the terminal
+    terminal_write((uint8_t*)&character, 1);
+    kb_buffer[kb_buffer_index] = character;
+    kb_buffer_index++;
 
     // Exit critical section
     sti();

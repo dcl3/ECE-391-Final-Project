@@ -12,6 +12,7 @@
 #include "paging.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "cursor.h"
 
 #define RUN_TESTS
 

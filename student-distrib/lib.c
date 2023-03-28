@@ -191,7 +191,17 @@ void putc(uint8_t c) {
         }
         return;
     }
-    if(c == '\n' || c == '\r') {
+    // replaces tab with 4 spaces
+    else if(c == '\t') {
+        for(int i = 0; i < 4; i++) {
+            *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+            *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+            screen_x++;
+            screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            screen_x %= NUM_COLS;
+        }
+    }
+    else if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x = 0;
     } else {
