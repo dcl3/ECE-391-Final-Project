@@ -119,7 +119,7 @@ int rtc_test(){
 	int sec;
 	for(i = 14; i >= 0; i--){
 		clear();
-		sec = 2 * (32768 >> (i-1));
+		sec = (32768 >> (i-1));
 		if(rtc_write(valid_freq[i]) == -1){
 			return FAIL;
 		}
