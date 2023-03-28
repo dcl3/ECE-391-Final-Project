@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "rtc.h"
 #include "filesystem.h"
+#include "terminal.h"
 
 #define PASS 1
 #define FAIL 0
@@ -305,12 +306,12 @@ int terminal_read_test(){
 	int result = PASS;
 
 	int32_t fd;
-    uint8_t key_buf[20] = "test";
-    int32_t nbytes = 20;
+    uint8_t buf[128];
+    int32_t nbytes = 128;
 
-    terminal_read(fd, key_buf, nbytes);
+    terminal_read(fd, buf, nbytes);
 
-    printf("%s\n", terminal_buf);
+    printf("%s\n", buf);
 
 	return result;
 }

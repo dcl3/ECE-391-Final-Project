@@ -5,7 +5,7 @@
 #include "idt.h"
 #include "lib.h"
 #include "x86_desc.h"
-#include "keyboard.h"
+// #include "keyboard.h"
 #include "interrupt_link.h"
 #include "rtc.h"
 

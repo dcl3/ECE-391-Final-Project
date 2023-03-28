@@ -5,6 +5,7 @@
 #include "keyboard.h"
 #include "i8259.h"
 #include "lib.h"
+#include "terminal.h"
 
 
 uint8_t shift_pressed = 0;
@@ -14,9 +15,10 @@ uint8_t caps_lock_pressed = 0;
 
 
 // keyboard buffer
-// char kb_buffer[KEYBOARD_BUFFER_SIZE];
-char* kb_buffer = NULL;
+char kb_buffer[KEYBOARD_BUFFER_SIZE];
+// char* kb_buffer = NULL;
 uint32_t kb_buffer_index = 0;
+volatile int32_t keyboard_flag = 0;
 
 
 static const unsigned short keyboard_scancode_set1[ALPHA_NUMERIC] = {

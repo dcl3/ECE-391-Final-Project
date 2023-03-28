@@ -11,8 +11,6 @@
 #define KEYBOARD_COMMAND_PORT 0x64
 #define ALPHA_NUMERIC 0x3A
 
-#define KEYBOARD_BUFFER_SIZE 128
-
 #define LEFT_SHIFT 0x2A
 #define LEFT_SHIFT_RELEASE 0xAA
 #define RIGHT_SHIFT 0x36
@@ -25,10 +23,6 @@
 #define CAPS_LOCK_RELEASE 0xBA
 #define BACKSPACE 0x08
 #define ENTER 0x1C
-
-extern volatile int32_t keyboard_flag = 0;
-extern char* kb_buffer;
-extern uint32_t kb_buffer_index;
 
 // initialize the keyboard
 void keyboard_init(void);
