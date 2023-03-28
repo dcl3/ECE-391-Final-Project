@@ -309,6 +309,14 @@ int terminal_read_test(){
     uint8_t buf[128];
     int32_t nbytes = 128;
 
+    kb_buffer_index = 4;
+    kb_buffer[0] = 't';
+    kb_buffer[0] = 'e';
+    kb_buffer[0] = 's';
+    kb_buffer[0] = 't';
+    // ...
+
+    keyboard_flag = 1;
     terminal_read(fd, buf, nbytes);
 
     printf("%s\n", buf);
@@ -358,6 +366,6 @@ void launch_tests(){
     // TEST_OUTPUT("small_file_read_test", small_file_read_test());
     // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
     // TEST_OUTPUT("large_file_read_test", large_file_read_test());
-    TEST_OUTPUT("terminal_read_test", terminal_read_test());
-    // TEST_OUTPUT("terminal_write_test", terminal_write_test());
+    // TEST_OUTPUT("terminal_read_test", terminal_read_test());
+    TEST_OUTPUT("terminal_write_test", terminal_write_test());
 }
