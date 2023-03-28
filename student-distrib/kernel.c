@@ -19,6 +19,9 @@
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags, bit)   ((flags) & (1 << (bit)))
 
+#define CURSOR_START 0x0A
+#define CURSOR_END 0x0B
+
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 void entry(unsigned long magic, unsigned long addr) {
@@ -156,6 +159,10 @@ void entry(unsigned long magic, unsigned long addr) {
     rtc_init();
 
     paging_init();
+
+
+    /* enable cursor */
+    enable_cursor(CURSOR_START, CURSOR_END);
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
