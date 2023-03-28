@@ -12,6 +12,7 @@
 #include "paging.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "filesystem.h"
 #include "cursor.h"
 
 #define RUN_TESTS
@@ -155,6 +156,11 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
+    // gets filesystem module pointer
+    module_t* mod = (module_t*)mbi->mods_addr;
+    uint32_t* filesystem_ptr = (uint32_t*) mod->mod_start;
+    filesystem_init(filesystem_ptr);
+
     keyboard_init();
 
     rtc_init();
@@ -172,15 +178,9 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     sti();
 
-    for (;;) {
-        asm("hlt");
-    }
-
-    while(1){};
-
 #ifdef RUN_TESTS
     /* Run tests */
-    // launch_tests();
+    launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 

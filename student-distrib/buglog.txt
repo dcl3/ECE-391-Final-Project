@@ -44,7 +44,7 @@ ___________________________________________________________________________
 
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-                                BUG LOG 4                                 | 
+                                BUG LOG 5                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
 The keyboard and the rtc was not working properly. The problem was that the
 interrupt was not working properly and it was only handling a single interrupt.
@@ -58,18 +58,43 @@ ___________________________________________________________________________
 *Checkpoint 2:
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-                                BUG LOG 4                                 | 
+                                BUG LOG 6                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-
+When test our rtc driver functionalities (read, write, open, and close),
+the character was only printed in the first line of our terminal, because 
+wer use putc to print our character, we checked the putc fcuntion in the 
+lib.c to see how it work. Later, we found that there's two lines of code 
+that were flipped, which is the reason of why it does not go to new line 
+after fill up the first line of the terminal.
+changed:
+screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+screen_x %= NUM_COLS;
 ___________________________________________________________________________
 
 
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 7                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Filesystem is not addressed correctly. Needed to use mods_start address
+instead of the mods_addr for the start of the filesystem.
+___________________________________________________________________________
 
 
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-                                BUG LOG 5                                 | 
+                                BUG LOG 8                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-
+Read data function is creating page fault exception. The function was not
+checking if the end of the file had been reach and was reading too far.
 ___________________________________________________________________________
 
+
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 9                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Directory read function was never returning. The if statement for
+returning the function had a syntax error that was not showing up when
+compiling.
+___________________________________________________________________________

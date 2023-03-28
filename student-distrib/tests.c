@@ -1,6 +1,8 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "rtc.h"
+#include "filesystem.h"
 
 #define PASS 1
 #define FAIL 0
@@ -104,9 +106,239 @@ int page_fault_test(){
 	return result;
 }
 
+/* Directory Read Test
+ * 
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: dir_read, dir_write, dir_open, dir_close
+ * Files: filesystem.c/h
+ */
+int dir_read_test(){
+	TEST_HEADER;
+
+	int32_t fd = 0;
+    uint8_t buf[32];
+    int32_t nbytes = 32;
+
+    const uint8_t* filename;
+
+    dir_open(filename);
+    dir_write(fd, buf, nbytes);
+
+    // printf("start\n");
+    while (dir_read(fd, &buf, nbytes) != 0) {
+        printf("filename: %s\n", buf);
+    }
+
+    dir_close(fd);
+
+	return PASS;
+}
+
+/* Small File Read Test
+ * 
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: file_read for small file, file_write, file_open, file_close
+ * Files: filesystem.c/h
+ */
+int small_file_read_test(){
+	TEST_HEADER;
+	int result = PASS;
+
+	int32_t fd = 10; // frame0.txt
+    uint8_t buf[200];
+    int32_t nbytes = 200;
+
+    const uint8_t* filename;
+
+    file_open(filename);
+    file_write(fd, buf, nbytes);
+
+    // printf("start\n");
+    file_read(fd, &buf, nbytes);
+
+    printf("%s\n", buf);
+
+    file_close(fd);
+
+	return result;
+}
+
+/* Executable File Read Test
+ * 
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: file_read for executable file, file_write, file_open, file_close
+ * Files: filesystem.c/h
+ */
+int exec_file_read_test(){
+	TEST_HEADER;
+	int result = PASS;
+    int i;
+
+	int32_t fd = 3; // grep
+    uint8_t buf[6149]; // length of grep file
+    int32_t nbytes = 6149;
+
+    const uint8_t* filename;
+
+    file_open(filename);
+    file_write(fd, buf, nbytes);
+
+    // printf("start\n");
+    i = file_read(fd, &buf, nbytes);
+
+    // printf("return val: %d\n", i);
+
+    // printf("%s\n", buf);
+
+    // only print first few and last few (ELF and magic number)
+    for (i = 0; i < 6149; i++) {
+        if (i < 50 || i > 6100) {
+            putc(buf[i]);
+        }
+    }
+
+    printf("\n");
+
+    file_close(fd);
+
+	return result;
+}
+
+/* File Read Test
+ * 
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: file_read for large file, file_write, file_open, file_close
+ * Files: filesystem.c/h
+ */
+int large_file_read_test(){
+	TEST_HEADER;
+	int result = PASS;
+
+	int32_t fd = 11; // verylargetextwithverylongname.tx(t)
+    uint8_t buf[10000];
+    int32_t nbytes = 10000;
+
+    const uint8_t* filename;
+
+    file_open(filename);
+    file_write(fd, buf, nbytes);
+
+    // printf("start\n");
+    file_read(fd, &buf, nbytes);
+
+    printf("%s\n", buf);
+
+    file_close(fd);
+
+	return result;
+}
+
 // add more tests here
 
 /* Checkpoint 2 tests */
+int rtc_test(){
+	TEST_HEADER;
+
+	/* check open works */
+	if(rtc_open() != 0){
+		return FAIL;
+	}
+
+	/* interates through valid frequencies */
+	int valid_freq[15] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+	int i;
+	int sec;
+	for(i = 14; i >= 0; i--){
+		clear();
+		sec = (32768 >> (i-1));
+
+		/* check if write works */
+		if(rtc_write(valid_freq[i]) == -1){
+			break;
+		}
+
+		/* check if read works*/
+		int count = 0;
+		while (sec != 0){
+			if (count >= 2048){
+				putc('x');
+				break;
+			}
+			if (rtc_read() == 0){
+				putc('i');
+				count++;
+			}
+			sec--;
+			// count++;
+		}
+		
+	}
+
+	clear();
+
+	/* return Pass if successful */
+	return PASS;
+}
+
+/* Terminal Read Test
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: terminal_read
+ * Files: terminal.c/h
+ */
+int terminal_read_test(){
+	TEST_HEADER;
+	int result = PASS;
+
+	int32_t fd;
+    uint8_t key_buf[20] = "test";
+    int32_t nbytes = 20;
+
+    terminal_read(fd, key_buf, nbytes);
+
+    printf("%s\n", terminal_buf);
+
+	return result;
+}
+
+/* Terminal Write Test
+ * 
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: terminal_write
+ * Files: terminal.c/h
+ */
+int terminal_write_test(){
+	TEST_HEADER;
+	int result = PASS;
+
+	int32_t fd;
+    uint8_t buf[20] = "test";
+    int32_t nbytes = 20;
+
+    terminal_write(fd, buf, nbytes);
+
+    // printf("%s\n", buf);
+
+	return result;
+}
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -115,9 +347,16 @@ int page_fault_test(){
 /* Test suite entry point */
 void launch_tests(){
     clear();
-	TEST_OUTPUT("idt_test", idt_test());
+	// TEST_OUTPUT("idt_test", idt_test());
     // TEST_OUTPUT("divison_test", divison_test());
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
-    // TEST_OUTPUT("page_fault_test", page_fault_test());
+
+	// TEST_OUTPUT("rtc_test", rtc_test());
+    // TEST_OUTPUT("dir_read_test", dir_read_test());
+    // TEST_OUTPUT("small_file_read_test", small_file_read_test());
+    // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
+    // TEST_OUTPUT("large_file_read_test", large_file_read_test());
+    TEST_OUTPUT("terminal_read_test", terminal_read_test());
+    // TEST_OUTPUT("terminal_write_test", terminal_write_test());
 }
