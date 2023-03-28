@@ -112,7 +112,7 @@ int page_fault_test(){
  * Inputs: None
  * Outputs: PASS/FAIL
  * Side Effects: None
- * Coverage: dir_read
+ * Coverage: dir_read, dir_write, dir_open, dir_close
  * Files: filesystem.c/h
  */
 int dir_read_test(){
@@ -122,10 +122,17 @@ int dir_read_test(){
     uint8_t buf[32];
     int32_t nbytes = 32;
 
+    const uint8_t* filename;
+
+    dir_open(filename);
+    dir_write(fd, buf, nbytes);
+
     // printf("start\n");
     while (dir_read(fd, &buf, nbytes) != 0) {
         printf("filename: %s\n", buf);
     }
+
+    dir_close(fd);
 
 	return PASS;
 }
@@ -136,7 +143,7 @@ int dir_read_test(){
  * Inputs: None
  * Outputs: PASS/FAIL
  * Side Effects: None
- * Coverage: file_read for small file
+ * Coverage: file_read for small file, file_write, file_open, file_close
  * Files: filesystem.c/h
  */
 int small_file_read_test(){
@@ -147,10 +154,17 @@ int small_file_read_test(){
     uint8_t buf[200];
     int32_t nbytes = 200;
 
+    const uint8_t* filename;
+
+    file_open(filename);
+    file_write(fd, buf, nbytes);
+
     // printf("start\n");
     file_read(fd, &buf, nbytes);
 
     printf("%s\n", buf);
+
+    file_close(fd);
 
 	return result;
 }
@@ -161,7 +175,7 @@ int small_file_read_test(){
  * Inputs: None
  * Outputs: PASS/FAIL
  * Side Effects: None
- * Coverage: file_read for executable file
+ * Coverage: file_read for executable file, file_write, file_open, file_close
  * Files: filesystem.c/h
  */
 int exec_file_read_test(){
@@ -172,6 +186,11 @@ int exec_file_read_test(){
 	int32_t fd = 3; // grep
     uint8_t buf[6149]; // length of grep file
     int32_t nbytes = 6149;
+
+    const uint8_t* filename;
+
+    file_open(filename);
+    file_write(fd, buf, nbytes);
 
     // printf("start\n");
     i = file_read(fd, &buf, nbytes);
@@ -187,6 +206,10 @@ int exec_file_read_test(){
         }
     }
 
+    printf("\n");
+
+    file_close(fd);
+
 	return result;
 }
 
@@ -196,7 +219,7 @@ int exec_file_read_test(){
  * Inputs: None
  * Outputs: PASS/FAIL
  * Side Effects: None
- * Coverage: file_read for large file
+ * Coverage: file_read for large file, file_write, file_open, file_close
  * Files: filesystem.c/h
  */
 int large_file_read_test(){
@@ -207,10 +230,17 @@ int large_file_read_test(){
     uint8_t buf[10000];
     int32_t nbytes = 10000;
 
+    const uint8_t* filename;
+
+    file_open(filename);
+    file_write(fd, buf, nbytes);
+
     // printf("start\n");
     file_read(fd, &buf, nbytes);
 
     printf("%s\n", buf);
+
+    file_close(fd);
 
 	return result;
 }
@@ -274,9 +304,9 @@ void launch_tests(){
     // TEST_OUTPUT("divison_test", divison_test());
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
-	TEST_OUTPUT("rtc_test", rtc_test());
+	// TEST_OUTPUT("rtc_test", rtc_test());
     // TEST_OUTPUT("dir_read_test", dir_read_test());
     // TEST_OUTPUT("small_file_read_test", small_file_read_test());
     // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
-    // TEST_OUTPUT("large_file_read_test", large_file_read_test());
+    TEST_OUTPUT("large_file_read_test", large_file_read_test());
 }
