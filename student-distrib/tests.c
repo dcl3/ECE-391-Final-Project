@@ -311,9 +311,9 @@ int terminal_read_test(){
 
     kb_buffer_index = 4;
     kb_buffer[0] = 't';
-    kb_buffer[0] = 'e';
-    kb_buffer[0] = 's';
-    kb_buffer[0] = 't';
+    kb_buffer[1] = 'e';
+    kb_buffer[2] = 's';
+    kb_buffer[3] = 't';
     // ...
 
     keyboard_flag = 1;
@@ -361,11 +361,11 @@ void launch_tests(){
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
 
-	// TEST_OUTPUT("rtc_test", rtc_test());
+	TEST_OUTPUT("rtc_test", rtc_test());
     // TEST_OUTPUT("dir_read_test", dir_read_test());
     // TEST_OUTPUT("small_file_read_test", small_file_read_test());
     // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
     // TEST_OUTPUT("large_file_read_test", large_file_read_test());
     // TEST_OUTPUT("terminal_read_test", terminal_read_test());
-    TEST_OUTPUT("terminal_write_test", terminal_write_test());
+    // TEST_OUTPUT("terminal_write_test", terminal_write_test());
 }
