@@ -101,7 +101,7 @@ int rtc_close(void){
  *      https://wiki.osdev.org/RTC
  */
 int rtc_read(void){
-    while (RTC_INTERRUPT == 1)
+    while (RTC_INTERRUPT == 0)
     {
         /* do nothing and wait for it */
     }
@@ -139,14 +139,8 @@ int rtc_write(int freq){
     if(rate <= 2 && rate > 15){
         return -1;
     }
-    rate &= RTC_RATE_MASK;		
 
-    cli();                                      // disable interrupts ...
-    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // set index to register A, disable NMI
-    char prev = inb(RTC_DATA_PORT);	            // get initial value of register A
-    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // reset index to A
-    outb((prev & RTC_REG_A_MASK) | rate, RTC_DATA_PORT);    // write only our rate to A. Note, rate is the bottom 4 bits.
-    sti(); 
+    rtc_set_freq(rate);
 
     return 0;
 }

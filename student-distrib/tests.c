@@ -116,13 +116,20 @@ int rtc_test(){
 	}
 	int valid_freq[15] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 	int i;
-	for(i = 0; i < 15; i++){
+	int sec;
+	for(i = 14; i >= 0; i--){
+		clear();
+		sec = 2 * (32768 >> (i-1));
 		if(rtc_write(valid_freq[i]) == -1){
 			return FAIL;
 		}
-		if(rtc_read() == 0){
-			printf("1");
+		while (sec != 0){
+			if (rtc_read() == 0){
+				putc('i');
+			}
+			sec--;
 		}
+		
 	}
 	// test_interrupts();
 
