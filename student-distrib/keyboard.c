@@ -101,7 +101,8 @@ extern void keyboard_handler() {
     }
 
     // Send the character to the terminal
-    terminal_write((uint8_t*)&character, 1);
+    // terminal_write((uint8_t*)&character, 1);
+    putc(character);
     kb_buffer[kb_buffer_index] = character;
     kb_buffer_index++;
 
@@ -129,6 +130,11 @@ int32_t check_for_modifier(uint8_t scancode) {
     }
     if(scancode == BACKSPACE) {
         if(kb_buffer_index > 0) {
+            if(kb_buffer[kb_buffer_index - 1] == '\t'){
+                putc('\b');
+                putc('\b');
+                putc('\b');
+            }
             kb_buffer_index--;
             putc('\b');
         }

@@ -2,6 +2,7 @@
  * vim:ts=4 noexpandtab */
 
 #include "lib.h"
+#include "cursor.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
@@ -172,10 +173,10 @@ int32_t puts(int8_t* s) {
 void putc(uint8_t c) {
     if(c == '\b') {
         if(screen_x > 0) {
+            screen_x--;
             *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
             *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
 
-            screen_x--;
         }
         else {
             if(screen_y > 0) {
@@ -211,6 +212,7 @@ void putc(uint8_t c) {
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
         screen_x %= NUM_COLS;
     }
+    update_cursor(screen_x, screen_y);
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
