@@ -82,6 +82,12 @@ extern void keyboard_handler() {
         sti();
         return;
     }
+    // Handle the scancode
+    if (scancode >= ALPHA_NUMERIC) {
+        send_eoi(KEYBOARD_IRQ_NUM);
+        sti();
+        return;  // Invalid scancode
+    }
     if (keyboard_scancode_set1[scancode] >= 'a' && keyboard_scancode_set1[scancode] <= 'z') {
         if(caps_lock_pressed ^ shift_pressed) 
             character = keyboard_scancode_modified[scancode];
