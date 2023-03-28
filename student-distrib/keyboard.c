@@ -15,12 +15,30 @@ static const unsigned short keyboard_scancode_set1[ALPHA_NUMERIC] = {
     0, /* All other keys are undefined */
 };
 
+/* 
+ * Keyboard_init
+ *   DESCRIPTION: initialize the keyboard by enable interrupts
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   REFERENCE:
+ *      https://wiki.osdev.org
+ */
 void keyboard_init() {
     // Enable interrupts for the keyboard
     clear();
     enable_irq(KEYBOARD_IRQ_NUM);
 }
 
+/* 
+ * keyboard_handler
+ *   DESCRIPTION: handler for keyboard, send a byte through a port whenever there is a typed character, and look up tables for characters
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   REFERENCE:
+ *      https://wiki.osdev.org
+ */
 extern void keyboard_handler() {
     // Set critical section
     // cli();

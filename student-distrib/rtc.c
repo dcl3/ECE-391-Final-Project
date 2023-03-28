@@ -27,17 +27,7 @@ void rtc_init(void){
     /* Turning on IRQ 8 */
     enable_irq(RTC_IRQ_NUMBER);
 
-    /* "Changing the output divider changes the interrupt rate, without interfering with the RTC's ability to keep proper time." */
-    char rate = RTC_DEFAULT_RATE;               // rate must be above 2 and not over 15
-    // char rate = RTC_SLOWEST_RATE;               // 15 slowest, and 3 fastest, set for demo purposes
-    
-    rate &= RTC_RATE_MASK;			
-    cli();                                      // disable interrupts ...
-    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // set index to register A, disable NMI
-    prev = inb(RTC_DATA_PORT);	                // get initial value of register A
-    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // reset index to A
-    outb((prev & RTC_REG_A_MASK) | rate, RTC_DATA_PORT);    // write only our rate to A. Note, rate is the bottom 4 bits.
-    sti();                                      // enable interrupts ...
+    // rtc_set_freq(15);
 
     RTC_INTERRUPT = 0;
 }
@@ -77,17 +67,10 @@ void rtc_handler(void){
  *      https://wiki.osdev.org/RTC
  */
 int rtc_open(void){
-    char rate = RTC_2Hz_FREQ;                   // Set the freq to 2
-    rate &= RTC_RATE_MASK;		
+    int freq = RTC_2Hz_FREQ;                // set the frequency to the corresponding value as explained in hte Description
+    rtc_set_freq(freq);
 
-    cli();                                      // disable interrupts ...
-    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // set index to register A, disable NMI
-    char prev = inb(RTC_DATA_PORT);	            // get initial value of register A
-    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // reset index to A
-    outb((prev & RTC_REG_A_MASK) | rate, RTC_DATA_PORT);    // write only our rate to A. Note, rate is the bottom 4 bits.
-    sti();                                      // enable interrupts ...
-
-    return 0;
+    return 0;                               // return 0 for success
 }
 
 
@@ -141,8 +124,6 @@ int rtc_read(void){
  *      https://wiki.osdev.org/RTC
  */
 int rtc_write(int freq){
-    
-
     if(!(((freq & (freq-1)) == 0) && (freq > 0))){      // check if the freq is power of 2
         return -1;                                      // if not, return -1
     }
@@ -168,4 +149,28 @@ int rtc_write(int freq){
     sti(); 
 
     return 0;
+}
+
+
+/* 
+ * rtc_set_freq
+ *   DESCRIPTION: "Changing the output divider changes the interrupt rate, without interfering with the RTC's ability to keep proper time."
+ *   INPUTS: freq - the frequency value that we want to set to
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   REFERENCE:
+ *      https://wiki.osdev.org/RTC
+ */
+void rtc_set_freq(int freq){
+    // char rate = RTC_DEFAULT_RATE;               // rate must be above 2 and not over 15
+    // char rate = RTC_SLOWEST_RATE;               // 15 slowest, and 3 fastest, set for demo purposes
+    char rate = (char)(freq & 0xff);            // Use bitwise AND to get the lowest 8 bits of integer
+    
+    rate &= RTC_RATE_MASK;			
+    cli();                                      // disable interrupts ...
+    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // set index to register A, disable NMI
+    char prev = inb(RTC_DATA_PORT);	                // get initial value of register A
+    outb(RTC_REGISTER_A, RTC_IDX_PORT);		    // reset index to A
+    outb((prev & RTC_REG_A_MASK) | rate, RTC_DATA_PORT);    // write only our rate to A. Note, rate is the bottom 4 bits.
+    sti();                                      // enable interrupts ...
 }

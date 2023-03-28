@@ -84,6 +84,26 @@ int system_call_test(){
 	return result;
 }
 
+/* Page Fault Test
+ * 
+ * Check if dereferencing 0 causes a page fault
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Paging
+ * Files: paging_asm.S/paging.c/h
+ */
+int page_fault_test(){
+	TEST_HEADER;
+	int result = PASS;
+	int *test;
+	int *i = 0;
+
+    memcpy(test, i, 4);
+
+
+	return result;
+}
 
 // add more tests here
 
@@ -104,6 +124,7 @@ int rtc_test(){
 			printf("1");
 		}
 	}
+	// test_interrupts();
 
 	return PASS;
 }

@@ -3,34 +3,54 @@ ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
                                 BUG LOG 1                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-
+Only one of the character was typed to the screen when we enable the
+keyboard init and keyboard_handler. We have some trouble to find where the
+bug was located, and we ask TA during the office hour, and found out that
+the keyboard handler portion where we check if the scancode is within the 
+alphanurmeric range was preventing an eoi if we just return. So we made a
+change to that portion of the code, by adding some if statements and send 
+eoi functionalities. 
 ___________________________________________________________________________
-
-
-
 
 
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
                                 BUG LOG 2                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-
+Our RTC have similiar issue as the one we had with keyboard_handler, where
+only one of interrupt was recieved by the operating system. We also asked 
+TA during the office hour regarding this issue, and she believe that its 
+reg c in RTC causing some sort of problems, we need to make sure we are 
+reading from a certain rtc register in order for it to send another 
+interrupt. Later, we found out that all we need is to add linkage.
 ___________________________________________________________________________
-
-
-
-
 
 
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
                                 BUG LOG 3                                 | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-
+Paging is crashing the kernel. The fix was changing the order of the
+control register enabling.
 ___________________________________________________________________________
 
 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 4                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Paging does not work with the keyboard and rtc. The video memory is not
+mapping properly.
+___________________________________________________________________________
 
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 4                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+The keyboard and the rtc was not working properly. The problem was that the
+interrupt was not working properly and it was only handling a single interrupt.
+We realized that we did not include the linkages for the interrupt handlers
+so the c calling convention was messing up the interrupts.
+___________________________________________________________________________
 
 
 

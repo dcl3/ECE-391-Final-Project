@@ -31,6 +31,8 @@
 #define XF 19
 
 #define SYS_CALL 0x80
+#define KEYBOARD_ENTRY 0x21
+#define RTC_ENTRY 0x28
 
 /* Externally-visible functions */
 

@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "tests.h"
 #include "idt.h"
+#include "paging.h"
 #include "keyboard.h"
 #include "rtc.h"
 
@@ -153,6 +154,8 @@ void entry(unsigned long magic, unsigned long addr) {
     keyboard_init();
 
     rtc_init();
+
+    paging_init();
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your

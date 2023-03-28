@@ -9,7 +9,15 @@
 #include "interrupt_link.h"
 #include "rtc.h"
 
-/* Initialize the idt */
+/* 
+ * idt_init
+ *   DESCRIPTION: initialize the idt
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   REFERENCE:
+ *      https://wiki.osdev.org
+ */
 void idt_init(void) {
     int i;
 
@@ -38,6 +46,7 @@ void idt_init(void) {
         }
     }
 
+    // make the idt values present, and set the idt entries
     idt[DE].present = 1;
     SET_IDT_ENTRY(idt[DE], de);
     idt[DB].present = 1;
@@ -83,108 +92,132 @@ void idt_init(void) {
     idt[SYS_CALL].present = 1;
     SET_IDT_ENTRY(idt[SYS_CALL], sys_call);
 
+    // modify idt entry for keyboard
     idt[0x21].present = 1;
-    SET_IDT_ENTRY(idt[0x21], keyboard_handler_linkage);
+    SET_IDT_ENTRY(idt[KEYBOARD_ENTRY], keyboard_handler_linkage);
 
+    // modify idt entry for rtc
     idt[0x28].present = 1;
-    SET_IDT_ENTRY(idt[0x28], rtc_handler_linkage);
+    SET_IDT_ENTRY(idt[RTC_ENTRY], rtc_handler_linkage);
 }
 
+/* Our approaches to IDT exceptions is to create separate exception functions */
+
+// function for Divide Error
 void de(void) {
     printf("Divide Error Exception\n");
     while(1){};
 }
 
+// function for Debug Exception
 void db(void) {
     printf("Debug Exception\n");
     while(1){};
 }
 
+// function for NMI
 void nmi(void) {
     printf("NMI Interrupt\n");
     while(1){};
 }
 
+// function for Breakpoint exception
 void bp(void) {
     printf("Breakpoint Exception\n");
     while(1){};
 }
 
+// function for Overflow Exception
 void of(void) {
     printf("Overflow Exception\n");
     while(1){};
 }
 
+// function for BOUND Range Exceed Exception
 void br(void) {
     printf("BOUND Range Exceeded Exception\n");
     while(1){};
 }
 
+// function for Invalid Opcode
 void ud(void) {
     printf("Invalid Opcode Exception\n");
     while(1){};
 }
 
+// function for Device Not Available
 void nm(void) {
     printf("Device Not Available Exception\n");
     while(1){};
 }
 
+// function for Double Fault
 void df(void) {
     printf("Double Fault Exception\n");
     while(1){};
 }
 
+// function for CSO
 void cso(void) {
     printf("Coprocessor Segment Overrun\n");
     while(1){};
 }
 
+// function for Invalid TSS
 void ts(void) {
     printf("Invalid TSS Exception\n");
     while(1){};
 }
 
+// function for Segment Not Present
 void np(void) {
     printf("Segment Not Present\n");
     while(1){};
 }
 
+// function for Stack Fault
 void sfe(void) {
     printf("Stack Fault Exception\n");
     while(1){};
 }
 
+// function for  General Protection
 void gp(void) {
     printf("General Protection Exception\n");
     while(1){};
 }
 
+// function for Page Fault
 void pf(void) {
     printf("Page-Fault Exception\n");
     while(1){};
 }
 
+// function for Floating Error
 void mf(void) {
     printf("x87 FPU Floating-Point Error\n");
     while(1){};
 }
 
+// function for Alignment Check
 void ac(void) {
     printf("Alignment Check Exception\n");
     while(1){};
 }
 
+// function for Machine Check
 void mc(void) {
     printf("Machine-Check Exception\n");
     while(1){};
 }
 
+// function for SIMD Floating ponit exception
 void xf(void) {
     printf("SIMD Floating-Point Exception\n");
     while(1){};
 }
 
+// function for SYstem call
 void sys_call(void) {
     printf("System Call\n");
     while(1){};

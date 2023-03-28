@@ -38,3 +38,5 @@ int rtc_read(void);
 /* */
 int rtc_write(int);
 
+/* */
+void rtc_set_freq(int);
