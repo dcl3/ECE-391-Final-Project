@@ -16,6 +16,9 @@
 #define RTC_RATE_MASK       0x0F
 #define RTC_REG_A_MASK      0xF0
 
+#define RTC_2Hz_FREQ        15
+
+
 
 /* initialize the rtc processor*/
 void rtc_init(void);
@@ -23,3 +26,17 @@ void rtc_init(void);
 /* set up the rtc handler*/
 void rtc_handler(void);
 
+/* */
+int rtc_open(void);
+
+/* */
+int rtc_close(void);
+
+/* */
+int rtc_read(void);
+
+/* */
+int rtc_write(int);
+
+/* */
+void rtc_set_freq(int);

@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "rtc.h"
 #include "filesystem.h"
 
 #define PASS 1
@@ -217,6 +218,50 @@ int large_file_read_test(){
 // add more tests here
 
 /* Checkpoint 2 tests */
+int rtc_test(){
+	TEST_HEADER;
+
+	/* check open works */
+	if(rtc_open() != 0){
+		return FAIL;
+	}
+
+	/* interates through valid frequencies */
+	int valid_freq[15] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+	int i;
+	int sec;
+	for(i = 14; i >= 0; i--){
+		clear();
+		sec = (32768 >> (i-1));
+
+		/* check if write works */
+		if(rtc_write(valid_freq[i]) == -1){
+			break;
+		}
+
+		/* check if read works*/
+		int count = 0;
+		while (sec != 0){
+			if (count >= 2048){
+				putc('x');
+				break;
+			}
+			if (rtc_read() == 0){
+				putc('i');
+				count++;
+			}
+			sec--;
+			// count++;
+		}
+		
+	}
+
+	clear();
+
+	/* return Pass if successful */
+	return PASS;
+}
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -229,7 +274,7 @@ void launch_tests(){
     // TEST_OUTPUT("divison_test", divison_test());
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
-    // TEST_OUTPUT("page_fault_test", page_fault_test());
+	// TEST_OUTPUT("rtc_test", rtc_test());
     // TEST_OUTPUT("dir_read_test", dir_read_test());
     // TEST_OUTPUT("small_file_read_test", small_file_read_test());
     // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
