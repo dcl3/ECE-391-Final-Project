@@ -292,6 +292,29 @@ int rtc_test(){
 	return PASS;
 }
 
+/* Terminal Read Test
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: terminal_read
+ * Files: terminal.c/h
+ */
+int terminal_read_test(){
+	TEST_HEADER;
+	int result = PASS;
+
+	int32_t fd;
+    uint8_t key_buf[20] = "test";
+    int32_t nbytes = 20;
+
+    terminal_read(fd, key_buf, nbytes);
+
+    printf("%s\n", terminal_buf);
+
+	return result;
+}
+
 /* Terminal Write Test
  * 
  * 
@@ -328,10 +351,12 @@ void launch_tests(){
     // TEST_OUTPUT("divison_test", divison_test());
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
+
 	// TEST_OUTPUT("rtc_test", rtc_test());
     // TEST_OUTPUT("dir_read_test", dir_read_test());
     // TEST_OUTPUT("small_file_read_test", small_file_read_test());
     // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
     // TEST_OUTPUT("large_file_read_test", large_file_read_test());
-    TEST_OUTPUT("terminal_write_test", terminal_write_test());
+    TEST_OUTPUT("terminal_read_test", terminal_read_test());
+    // TEST_OUTPUT("terminal_write_test", terminal_write_test());
 }
