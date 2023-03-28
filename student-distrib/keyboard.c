@@ -14,8 +14,10 @@ uint8_t caps_lock_pressed = 0;
 
 
 // keyboard buffer
-char* kb_buffer[KEYBOARD_BUFFER_SIZE];
+// char kb_buffer[KEYBOARD_BUFFER_SIZE];
+char* kb_buffer = NULL;
 uint32_t kb_buffer_index = 0;
+
 
 static const unsigned short keyboard_scancode_set1[ALPHA_NUMERIC] = {
     0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
@@ -100,11 +102,22 @@ extern void keyboard_handler() {
             character = keyboard_scancode_set1[scancode];
     }
 
+    if ((kb_buffer_index >= KEYBOARD_BUFFER_SIZE - 1) && scancode != ENTER){
+        send_eoi(KEYBOARD_IRQ_NUM);
+        sti();
+        return;
+    }
+
     // Send the character to the terminal
     // terminal_write((uint8_t*)&character, 1);
     putc(character);
     kb_buffer[kb_buffer_index] = character;
     kb_buffer_index++;
+
+    if(scancode == ENTER) {
+        keyboard_flag = 1;
+        kb_buffer_index = 0;
+    }
 
     // Exit critical section
     sti();
