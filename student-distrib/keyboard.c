@@ -6,6 +6,17 @@
 #include "i8259.h"
 #include "lib.h"
 
+
+uint8_t shift_pressed = 0;
+uint8_t ctrl_pressed = 0;
+uint8_t alt_pressed = 0;
+uint8_t caps_lock_pressed = 0;
+
+
+// keyboard buffer
+char kb_buffer[KEYBOARD_BUFFER_SIZE];
+uint32_t kb_buffer_index = 0;
+
 static const unsigned short keyboard_scancode_set1[ALPHA_NUMERIC] = {
     0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
     '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
@@ -124,3 +135,4 @@ uint8_t check_for_modifier(uint8_t scancode) {
     }
     return 0;
 }
+

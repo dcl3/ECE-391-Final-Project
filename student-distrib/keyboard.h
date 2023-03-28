@@ -2,6 +2,7 @@
  * vim:ts=4 noexpandtab
  */
 
+#include "types.h"
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
@@ -27,14 +28,6 @@
 #define CAPS_LOCK 0x3A
 #define CAPS_LOCK_RELEASE 0xBA
 
-uint8_t shift_pressed = 0;
-uint8_t ctrl_pressed = 0;
-uint8_t alt_pressed = 0;
-uint8_t caps_lock_pressed = 0;
-
-// keyboard buffer
-char kb_buffer[KEYBOARD_BUFFER_SIZE];
-uint32_t kb_buffer_index = 0;
 
 // initialize the keyboard
 void keyboard_init(void);
@@ -42,4 +35,7 @@ void keyboard_init(void);
 // handles the interrupt from the keyboard
 extern void keyboard_handler(void);
 
+uint8_t check_for_modifier(uint8_t scancode);
+
 #endif /* KEYBOARD_H */
+
