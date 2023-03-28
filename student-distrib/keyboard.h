@@ -30,6 +30,7 @@ void keyboard_init(void);
 // handles the interrupt from the keyboard
 extern void keyboard_handler(void);
 
+// check if the key pressed is a modifier key
 int32_t check_for_modifier(uint8_t scancode);
 
 #endif /* KEYBOARD_H */

@@ -3,17 +3,34 @@
 #include "lib.h"
 #include "keyboard.h"
 
-
+/*
+*  terminal_open: opens the terminal
+*  Inputs: filename - name of file to open
+*  Outputs: -1
+*/
 int32_t terminal_open (const uint8_t* filename){
     // do nothing
     return -1;
 }
 
+/*
+*   terminal_close: closes the terminal
+*   Inputs: fd - file descriptor
+*   Outputs: -1
+*/
 int32_t terminal_close (int32_t fd){
     // do nothing
     return -1;
 }
 
+/*
+*   terminal_read: reads from the keyboard buffer
+*   Inputs: fd - file descriptor
+*           buf - buffer to read into
+*           nbytes - number of bytes to read
+*   Outputs: number of bytes read
+*   Side Effects: none    
+*/
 int32_t terminal_read (int32_t fd, void* buf, int32_t nbytes){
     if (buf==NULL){return -1;}
     if (nbytes < 0){return -1;}
@@ -51,6 +68,14 @@ int32_t terminal_read (int32_t fd, void* buf, int32_t nbytes){
     return i;
 }
 
+/*
+ *  terminal_write: writes to the screen
+*  Inputs: fd - file descriptor
+*       buf - buffer to write from
+*      nbytes - number of bytes to write
+* Outputs: number of bytes written
+* Side Effects: none
+*/
 int32_t terminal_write (int32_t fd, const void* buf, int32_t nbytes){
     int i;
     for(i = 0; i < nbytes; ++i) {

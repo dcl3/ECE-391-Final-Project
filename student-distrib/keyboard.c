@@ -129,7 +129,13 @@ extern void keyboard_handler() {
     return;
 }
 
-
+/*
+* check_for_modifier
+*   DESCRIPTION: check if the key pressed is a modifier key
+*   INPUTS: scancode
+*   OUTPUTS: none
+*   RETURN VALUE: 1 if it is a modifier key, 0 otherwise
+*/
 int32_t check_for_modifier(uint8_t scancode) {
     if(scancode == LEFT_SHIFT || scancode == RIGHT_SHIFT) {
         shift_pressed = 1;

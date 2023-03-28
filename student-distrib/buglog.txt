@@ -98,3 +98,15 @@ Directory read function was never returning. The if statement for
 returning the function had a syntax error that was not showing up when
 compiling.
 ___________________________________________________________________________
+
+
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 9                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Had a problem where the terminal was not displaying the correct characters
+when typing. The problem was that the terminal was not clearing the characters
+when the backspace was pressed. Instead, it was just overwriting the characters
+with the new characters. The problem was that the backspace was not clearing
+the characters before the x position was decremented.
+___________________________________________________________________________

@@ -11,9 +11,13 @@ extern volatile int32_t keyboard_flag;
 extern char kb_buffer[KEYBOARD_BUFFER_SIZE];
 extern uint32_t kb_buffer_index;
 
+// opens terminal
 int32_t terminal_open (const uint8_t* filename);
+// closes terminal
 int32_t terminal_close (int32_t fd);
+// reads from terminal
 int32_t terminal_read (int32_t fd, void* buf, int32_t nbytes);
+// writes to terminal
 int32_t terminal_write (int32_t fd, const void* buf, int32_t nbytes);
 
 #endif /* TERMINAL_H */
