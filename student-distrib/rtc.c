@@ -3,7 +3,6 @@
 
 
 // decleared global varibales:
-
 volatile int RTC_INTERRUPT = 0;                 // 0 - no interrupts, 1 - some interrupts
 
 /* 
@@ -26,10 +25,10 @@ void rtc_init(void){
 
     /* Turning on IRQ 8 */
     enable_irq(RTC_IRQ_NUMBER);
-
     // rtc_set_freq(15);
 
-    RTC_INTERRUPT = 0;
+    /* initialize the interrupt*/
+    RTC_INTERRUPT = 0;                          // initialize the interrupt to 0
 }
 
     
@@ -50,7 +49,7 @@ void rtc_handler(void){
     inb(RTC_DATA_PORT);                     // just throw away contents
 
     // test_interrupts();                      // given func to test if it works 
-    RTC_INTERRUPT = 1;
+    RTC_INTERRUPT = 1;                      // set the rtc interrupt to 1
 
     send_eoi(RTC_IRQ_NUMBER);               // send eoi of irq 8
 }
@@ -67,12 +66,13 @@ void rtc_handler(void){
  *      https://wiki.osdev.org/RTC
  */
 int rtc_open(void){
-    int freq = RTC_2Hz_FREQ;                // set the frequency to the corresponding value as explained in hte Description
+    /* set the frequency to the corresponding value as explained in the Description */
+    int freq = RTC_2Hz_FREQ;                
     rtc_set_freq(freq);
 
-    return 0;                               // return 0 for success
+    /* return 0 if is successful */
+    return 0;                               
 }
-
 
 /* 
  * rtc_close
@@ -84,7 +84,7 @@ int rtc_open(void){
  *      https://wiki.osdev.org/RTC
  */
 int rtc_close(void){
-    // does nothing and return 0
+    /* does nothing and return 0 */
     return 0;
 }
 
@@ -101,13 +101,16 @@ int rtc_close(void){
  *      https://wiki.osdev.org/RTC
  */
 int rtc_read(void){
+    /* block until the next interrupt happen*/
     while (RTC_INTERRUPT == 0)
     {
         /* do nothing and wait for it */
     }
 
+    /* set the rtc interrupt back to 0*/
     RTC_INTERRUPT = 0;
 
+    /* return 0 if is successful */
     return 0;
 }
 
@@ -124,24 +127,31 @@ int rtc_read(void){
  *      https://wiki.osdev.org/RTC
  */
 int rtc_write(int freq){
-    if(!(((freq & (freq-1)) == 0) && (freq > 0))){      // check if the freq is power of 2
+    /* check if the freq is power of 2*/
+    if(!(((freq & (freq-1)) == 0) && (freq > 0))){      
         return -1;                                      // if not, return -1
     }
+
+    /* find the correspond rate of the given frequency */
     int valid_freq[15] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
-    char rate;
+    char rate = 0;
     int i;
     for(i =0; i < 15; i++){
         if(valid_freq[i] == freq){
             rate = i + 1;
+            break;
         }
     }
      
-    if(rate <= 2 && rate > 15){
-        return -1;
+    /* check if the rate is out of bounds*/
+    if(rate <= 2 || rate > 15){                         // rate must be above 2 and not over 15
+        return -1;                                      // if out of bounds, return -1
     }
 
+    /* set the frequency of rtc interrupts of given freq*/
     rtc_set_freq(rate);
 
+    /* return 0 if is successful */
     return 0;
 }
 

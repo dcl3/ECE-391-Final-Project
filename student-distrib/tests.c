@@ -111,28 +111,44 @@ int page_fault_test(){
 int rtc_test(){
 	TEST_HEADER;
 
+	/* check open works */
 	if(rtc_open() != 0){
 		return FAIL;
 	}
+
+	/* interates through valid frequencies */
 	int valid_freq[15] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 	int i;
 	int sec;
 	for(i = 14; i >= 0; i--){
 		clear();
 		sec = (32768 >> (i-1));
+
+		/* check if write works */
 		if(rtc_write(valid_freq[i]) == -1){
-			return FAIL;
+			break;
 		}
+
+		/* check if read works*/
+		int count = 0;
 		while (sec != 0){
+			if (count >= 2048){
+				putc('x');
+				break;
+			}
 			if (rtc_read() == 0){
 				putc('i');
+				count++;
 			}
 			sec--;
+			// count++;
 		}
 		
 	}
-	// test_interrupts();
 
+	clear();
+
+	/* return Pass if successful */
 	return PASS;
 }
 
