@@ -275,8 +275,8 @@ void launch_tests(){
     // TEST_OUTPUT("system_call_test", system_call_test());
 	// launch your tests here
 	// TEST_OUTPUT("rtc_test", rtc_test());
-    // TEST_OUTPUT("dir_read_test", dir_read_test());
+    TEST_OUTPUT("dir_read_test", dir_read_test());
     // TEST_OUTPUT("small_file_read_test", small_file_read_test());
     // TEST_OUTPUT("exec_file_read_test", exec_file_read_test());
-    TEST_OUTPUT("large_file_read_test", large_file_read_test());
+    // TEST_OUTPUT("large_file_read_test", large_file_read_test());
 }
