@@ -14,7 +14,7 @@ uint8_t caps_lock_pressed = 0;
 
 
 // keyboard buffer
-char kb_buffer[KEYBOARD_BUFFER_SIZE];
+char* kb_buffer[KEYBOARD_BUFFER_SIZE];
 uint32_t kb_buffer_index = 0;
 
 static const unsigned short keyboard_scancode_set1[ALPHA_NUMERIC] = {

@@ -194,7 +194,8 @@ void putc(uint8_t c) {
     }
     // replaces tab with 4 spaces
     else if(c == '\t') {
-        for(int i = 0; i < 4; i++) {
+        int i;
+        for(i = 0; i < 4; i++) {
             *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
             *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
             screen_x++;
