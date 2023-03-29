@@ -21,7 +21,7 @@
 #define LEFT_ALT_RELEASE 0xB8
 #define CAPS_LOCK 0x3A
 #define CAPS_LOCK_RELEASE 0xBA
-#define BACKSPACE 0x08
+#define BACKSPACE 0x0E
 #define ENTER 0x1C
 
 // initialize the keyboard
