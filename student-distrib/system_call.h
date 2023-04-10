@@ -1,7 +1,13 @@
 #include "types.h"
-#include "rtc.h" 
+#include "rtc.h"
+#include "task_struct.h"
 
-//reference from appendex B, the ten system calls that we need to implement, numbered 1 through 10
+#define MAX_TASK 2
+
+uint8_t num_processes = 0;
+pcb_t pcb[MAX_TASK];
+
+// reference from appendex B, the ten system calls that we need to implement, numbered 1 through 10
 int32_t syscall_halt(uint8_t status);                                        //1
 int32_t syscall_execute(const uint8_t* command);                             //2
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes);                 //3
@@ -12,5 +18,3 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes);                       //7
 int32_t syscall_vidmap(uint8_t** screen_start);                              //8
 int32_t syscall_set_handler(int32_t signum, void* handler_address);          //9
 int32_t syscall_sigreturn(void);                                             //10
-
-

@@ -30,5 +30,7 @@ uint32_t page_table[NUM_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
 // initialize paging
 extern void paging_init();
 
+extern void load_user(uint32_t num_proc);
+
 // assembly code for modfying control registers
 extern void load_enable_paging(unsigned int*);

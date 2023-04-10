@@ -32,7 +32,7 @@ void filesystem_init(uint32_t* filesystem_ptr) {
  *   DESCRIPTION: fill dentry_t block based on fname
  *   INPUTS: fname - file name to use to fill dentry_t block
  *   OUTPUTS: dentry - dentry_t block to be filled
- *   RETURN VALUE: 0 on succes, -1 on failure
+ *   RETURN VALUE: 0 on success, -1 on failure
  */
 int32_t read_dentry_by_name (const uint8_t* fname, dentry_t* dentry) {
     int i, j;

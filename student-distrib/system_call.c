@@ -1,6 +1,6 @@
 #include "system_call.h"
-
-
+#include "paging.h"
+#include "filesystem.h"
 
 /* 
  * system_halt
@@ -15,7 +15,7 @@ int32_t syscall_halt(uint8_t status){
 }
 
 /* 
- * system_halt
+ * system_execute
  *   DESCRIPTION: 
  *   INPUTS: 
  *   OUTPUTS: 
@@ -23,7 +23,20 @@ int32_t syscall_halt(uint8_t status){
  *   REFERENCE:
  */
 int32_t syscall_execute(const uint8_t* command){
-    return -1;
+    // paging setup
+    num_processes += 1;
+    load_user(num_processes);
+
+    // parse cmd
+    dentry_t* dentry;
+    if (read_dentry_by_name(command, dentry) == -1) {
+        return -1;
+    };
+
+    pcb[num_processes - 1].id = 0;
+    pcb[num_processes - 1].active = 1;
+
+    return 0;
 }
 
 /* 

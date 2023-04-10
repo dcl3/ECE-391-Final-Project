@@ -178,6 +178,7 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     sti();
 
+    // syscall_execute("shell");
 #ifdef RUN_TESTS
     /* Run tests */
     launch_tests();
