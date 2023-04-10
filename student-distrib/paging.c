@@ -27,5 +27,5 @@ void paging_init() {
 
 void load_user(uint32_t num_proc) {
     // 32 * 4MB = 128 MB
-    page_directory[32] = ((USER_ADDR + (num_proc * FOUR_MB)) & UPPER_TEN) | USER_READ_WRITE_P_FOUR_MB;
+    page_directory[32] = ((USER_ADDR + ((num_proc - 1) * FOUR_MB)) & UPPER_TEN) | USER_READ_WRITE_P_FOUR_MB;
 }

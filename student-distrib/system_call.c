@@ -1,6 +1,7 @@
 #include "system_call.h"
 #include "paging.h"
 #include "filesystem.h"
+#include "rtc.h"
 
 /* 
  * system_halt
@@ -33,8 +34,33 @@ int32_t syscall_execute(const uint8_t* command){
         return -1;
     };
 
-    pcb[num_processes - 1].id = 0;
+    // fill in pcb
+    pcb[num_processes - 1].id = num_processes - 1;
     pcb[num_processes - 1].active = 1;
+
+    // fill in file array
+    pcb[num_processes - 1].f_array.inode = dentry->inode_num;
+    pcb[num_processes - 1].f_array.f_pos = 0;
+    pcb[num_processes - 1].f_array.flags = 1;
+
+    if (dentry->f_type == 0) {
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->open = (int32_t*) &rtc_open;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->read = (int32_t*) &rtc_read;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->write = (int32_t*) &rtc_write;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->close = (int32_t*) &rtc_close;
+    } else if (dentry->f_type == 1) {
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->open = (int32_t*) &dir_open;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->read = (int32_t*) &dir_read;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->write = (int32_t*) &dir_write;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->close = (int32_t*) &dir_close;
+    } else if (dentry->f_type == 2) {
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->open = (int32_t*) &file_open;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->read = (int32_t*) &file_read;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->write = (int32_t*) &file_write;
+        pcb[num_processes - 1].f_array.f_op_tbl_ptr->close = (int32_t*) &file_close;
+    } else {
+        return -1;
+    }
 
     return 0;
 }

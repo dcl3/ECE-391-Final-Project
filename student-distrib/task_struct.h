@@ -1,6 +1,8 @@
 /* task_struct.h - Defines used in tasks
  * vim:ts=4 noexpandtab
  */
+#ifndef _task_struct_H
+#define _task_struct_H
 
 #include "types.h"
 
