@@ -4,6 +4,8 @@
 #include "rtc.h"
 #include "systemcall_link.h"
 
+uint8_t num_processes = 0;
+
 /* 
  * system_halt
  *   DESCRIPTION: 
@@ -39,35 +41,35 @@ int32_t syscall_execute(const uint8_t* command){
     pcb[num_processes - 1].active = 1;
 
     // fill in file array
-    pcb[num_processes - 1].f_array.inode = dentry->inode_num;
-    pcb[num_processes - 1].f_array.f_pos = 0;
-    pcb[num_processes - 1].f_array.flags = 1;
+    pcb[num_processes - 1].f_array[2].inode = dentry->inode_num;
+    pcb[num_processes - 1].f_array[2].f_pos = 0;
+    pcb[num_processes - 1].f_array[2].flags = 1;
 
     if (dentry->f_type == 0) {
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->open = (int32_t*) &rtc_open;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->read = (int32_t*) &rtc_read;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->write = (int32_t*) &rtc_write;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->close = (int32_t*) &rtc_close;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->open = &rtc_open;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->read = &rtc_read;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->write = &rtc_write;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->close = &rtc_close;
     } else if (dentry->f_type == 1) {
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->open = (int32_t*) &dir_open;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->read = (int32_t*) &dir_read;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->write = (int32_t*) &dir_write;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->close = (int32_t*) &dir_close;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->open = &dir_open;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->read = &dir_read;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->write = &dir_write;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->close = &dir_close;
     } else if (dentry->f_type == 2) {
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->open = (int32_t*) &file_open;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->read = (int32_t*) &file_read;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->write = (int32_t*) &file_write;
-        pcb[num_processes - 1].f_array.f_op_tbl_ptr->close = (int32_t*) &file_close;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->open = &file_open;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->read = &file_read;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->write = &file_write;
+        pcb[num_processes - 1].f_array[2].f_op_tbl_ptr->close = &file_close;
     } else {
         return -1;
     }
 
     load_user(num_processes);
     flush_tlb();
-    register uint32_t save_ebp asm("ebp");
-    register uint32_t save_esp asm("esp");
-    pcb[num_processes - 1].ebp = save_ebp;
-    pcb[num_processes - 1].esp = save_esp;
+    register uint32_t saved_ebp asm("ebp");
+    register uint32_t saved_esp asm("esp");
+    pcb[num_processes - 1].saved_ebp = saved_ebp;
+    pcb[num_processes - 1].saved_esp = saved_esp;
 
     load_program(dentry->inode_num, num_processes);
 

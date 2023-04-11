@@ -4,7 +4,6 @@
 
 #define MAX_TASK 2
 
-uint8_t num_processes = 0;
 pcb_t pcb[MAX_TASK];
 
 // reference from appendex B, the ten system calls that we need to implement, numbered 1 through 10

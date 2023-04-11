@@ -132,7 +132,7 @@ int32_t load_program(uint32_t inode, uint32_t num_proc) {
 
     read_data(inode, 0, buf, 0x400000);
 
-    memcpy(0x848000 + (num_proc * 0x400000), buf, 0x400000);
+    memcpy((uint32_t*) 0x848000 + (num_proc * 0x400000), buf, 0x400000);
 
     return 0;
 }
