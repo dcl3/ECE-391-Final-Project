@@ -1,6 +1,5 @@
 #define ASM
 
-.global jump_usermode
 .extern test_user_function
 
 .align 4
@@ -60,6 +59,7 @@ jump_usermode_unused:
     pushl eip_arg
     iret
 
+.global jump_usermode
 jump_usermode:
     movw user_ds_arg, %ds
     pushl user_ds_arg
