@@ -27,7 +27,6 @@ int32_t syscall_halt(uint8_t status){
 int32_t syscall_execute(const uint8_t* command){
     // paging setup
     num_processes += 1;
-    load_user(num_processes);
 
     // parse cmd
     dentry_t* dentry;
@@ -62,6 +61,8 @@ int32_t syscall_execute(const uint8_t* command){
     } else {
         return -1;
     }
+
+    load_user(num_processes);
 
     load_program(dentry->inode_num, num_processes);
 
