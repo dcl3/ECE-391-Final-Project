@@ -22,6 +22,8 @@
 #define VIDEO_ADDR 0xb8000
 
 #define USER_ADDR 0x00800000
+#define USER_DIR_OFF 32
+
 
 uint32_t page_directory[NUM_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
 

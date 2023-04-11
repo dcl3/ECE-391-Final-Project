@@ -110,3 +110,40 @@ when the backspace was pressed. Instead, it was just overwriting the characters
 with the new characters. The problem was that the backspace was not clearing
 the characters before the x position was decremented.
 ___________________________________________________________________________
+
+
+
+*Checkpoint 3:
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 10                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Page faulting when filling in pcb structure. Our issue was we had not
+created a temporary file array structure to place into the pcb. After
+adding this the program does not page fault when filling in the pcb
+structure.
+___________________________________________________________________________
+
+
+
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 11                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Program is not existing at the correct space in memory. The program loader
+was putting the program at the physical address not the virtual address.
+___________________________________________________________________________
+
+
+
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 12                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Page faulting when iret while trying to switch to user mode. We believe we
+are having an issue with memory setup, but can't seem to figure out where
+the fault is coming from.
+___________________________________________________________________________
+
+
+
