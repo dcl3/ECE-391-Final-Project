@@ -51,6 +51,7 @@ systemcall_return:
     popl %esi
     iret
 
+.globl jump_usermode
 jump_usermode:
 	movw (4 * 8) | 3, ax ; ring 3 data with bottom 2 bits set for ring 3
 	movw ax, ds
@@ -67,6 +68,7 @@ jump_usermode:
 	pushl test_user_function ; instruction address to return to
 	iret
 
+.globl flush_tlb
 flush_tlb:
     movl %cr3, %eax
     movl %eax, %cr3
