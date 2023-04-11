@@ -32,7 +32,7 @@ void filesystem_init(uint32_t* filesystem_ptr) {
  *   DESCRIPTION: fill dentry_t block based on fname
  *   INPUTS: fname - file name to use to fill dentry_t block
  *   OUTPUTS: dentry - dentry_t block to be filled
- *   RETURN VALUE: 0 on succes, -1 on failure
+ *   RETURN VALUE: 0 on success, -1 on failure
  */
 int32_t read_dentry_by_name (const uint8_t* fname, dentry_t* dentry) {
     int i, j;
@@ -118,7 +118,7 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
         // index within the data block
         data_idx = (i + offset) % (MAX_DATA);
 
-        // memcpy(buf[i], (dblock_ptr + dblock)->data[data_idx], 1);
+        // memcpy(buf + i, &(dblock_ptr + dblock)->data[data_idx], 1);
 
         // fill in buffer with data
         buf[i] = (dblock_ptr + dblock)->data[data_idx];
@@ -126,6 +126,18 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
 
     return length;
 };
+
+int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
+    inode_t* temp_inode_ptr = inode_ptr + inode_num;
+
+    // uint8_t* buf;
+
+    read_data(inode_num, 0, (int8_t*) 0x08048000, temp_inode_ptr->length);
+
+    // memcpy((uint32_t*) 0x848000 + (num_proc * 0x400000), &buf, temp_inode_ptr->length);
+
+    return 0;
+}
 
 // keeps track of number of times read from directory
 int num_read = 0;

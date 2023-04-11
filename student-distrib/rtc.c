@@ -65,7 +65,7 @@ void rtc_handler(void){
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
-int rtc_open(void){
+int32_t rtc_open(const uint8_t* filename){
     /* set the frequency to the corresponding value as explained in the Description */
     int freq = RTC_2Hz_FREQ;                
     rtc_set_freq(freq);
@@ -83,7 +83,7 @@ int rtc_open(void){
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
-int rtc_close(void){
+int32_t rtc_close(int32_t fd){
     /* does nothing and return 0 */
     return 0;
 }
@@ -100,7 +100,7 @@ int rtc_close(void){
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
-int rtc_read(void){
+int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes){
     /* block until the next interrupt happen*/
     while (RTC_INTERRUPT == 0)
     {
@@ -126,7 +126,7 @@ int rtc_read(void){
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
-int rtc_write(int freq){
+int32_t rtc_write(int32_t fd, const void* buf, int32_t freq){
     /* check if the freq is power of 2*/
     if(!(((freq & (freq-1)) == 0) && (freq > 0))){      
         return -1;                                      // if not, return -1
