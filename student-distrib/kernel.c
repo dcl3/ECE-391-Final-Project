@@ -179,10 +179,10 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     sti();
 
-    syscall_execute((const uint8_t*) "shell");
+    // syscall_execute((const uint8_t*) "shell");
 #ifdef RUN_TESTS
     /* Run tests */
-    // launch_tests();
+    launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 
