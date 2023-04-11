@@ -4,6 +4,8 @@
 #include "rtc.h"
 #include "filesystem.h"
 #include "terminal.h"
+#include "system_call.h"
+#include "paging.h"
 
 #define PASS 1
 #define FAIL 0
@@ -349,6 +351,61 @@ int terminal_write_test(){
 }
 
 /* Checkpoint 3 tests */
+
+/* Systhem Call Write Test
+ * 
+ * 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: terminal_write
+ * Files: terminal.c/h
+ */
+int system_call_Open_test(){
+    TEST_HEADER;
+    int result = PASS;
+
+    pcb_t* temp_pcb = (pcb_t*)(0x0800000 - ((1) * 2 * FOUR_KB));
+
+    // fill in pcb
+    temp_pcb->id = 0;
+    temp_pcb->active = 0;
+
+    f_op_tbl_t temp_f_op_tbl;
+    int i;
+    for(i = 0 ; i < MAX_FD ; i++){
+        temp_pcb->f_array[i].flags = 0;
+        temp_pcb->f_array[i].f_pos = 0;
+        temp_pcb->f_array[i].inode = 0;
+    }
+
+    temp_f_op_tbl.open = &terminal_open;
+    temp_f_op_tbl.read = &terminal_read;
+    temp_f_op_tbl.write = &terminal_write;
+    temp_f_op_tbl.close = &terminal_close;
+
+    temp_pcb->f_array[0].f_op_tbl_ptr = &temp_f_op_tbl;
+    temp_pcb->f_array[0].flags = 1;
+    temp_pcb->f_array[1].f_op_tbl_ptr = &temp_f_op_tbl;
+    temp_pcb->f_array[1].flags = 1;
+
+    pcb_ptr[0] = temp_pcb;
+
+    // (const uint8_t) f_name = "frame0.txt";
+    int32_t sys_open = syscall_open((const uint8_t*)"frame0.txt");
+    if (sys_open == -1) result = FAIL;
+    
+    uint8_t buf[40];
+    int32_t nbytes = 40;
+
+    if (syscall_read(sys_open, buf, nbytes) == -1) result = FAIL;
+
+    printf("%s", buf);
+
+    if (syscall_write(sys_open, buf, nbytes) == -1) result = FAIL;
+    return result;
+}
+
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -368,4 +425,5 @@ void launch_tests(){
     // TEST_OUTPUT("large_file_read_test", large_file_read_test());
     // TEST_OUTPUT("terminal_read_test", terminal_read_test());
     // TEST_OUTPUT("terminal_write_test", terminal_write_test());
+    TEST_OUTPUT("system_call_Open_test", system_call_Open_test());
 }

@@ -161,21 +161,6 @@ int32_t syscall_execute(const uint8_t* command){
 
     // jump to usermode
     jump_usermode();
-    // asm volatile("movw %%bx, %%ds     \n\
-    //     pushl %%ebx         \n\
-    //     pushl %%edx         \n\
-    //     pushfl              \n\
-    //     popl %%edx          \n\
-    //     orl $0x0200, %%edx  \n\
-    //     pushl %%edx         \n\
-    //     pushl %%ecx         \n\
-    //     pushl %%eax         \n\
-    //     iret                \n\
-    //     "
-    //     :
-    //     : "a"(USER_DS), "b"(esp_arg), "c"(USER_CS), "d"(eip_arg)
-    //     : "memory"
-    // );
 
     return 0;
 }
@@ -191,13 +176,12 @@ int32_t syscall_execute(const uint8_t* command){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
-    pcb_t* pcb;
     // check if the any of the inputs are valid
     if(fd < 0 || buf == NULL || nbytes < 0){
        return -1;
     }
 
-    return (pcb[num_processes].f_array[fd]).f_op_tbl_ptr->read(fd, buf, nbytes);
+    return (pcb_ptr[0]->f_array[fd]).f_op_tbl_ptr->read(fd, buf, nbytes);
 }
 
 /* 
@@ -213,13 +197,12 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
-    pcb_t* pcb;
     // check if the any of the inputs are valid
     if(fd < 0 || buf == NULL || nbytes < 0){
        return -1;
     }
     
-    return (pcb[num_processes].f_array[fd]).f_op_tbl_ptr->write(fd, buf, nbytes);
+    return (pcb_ptr[0]->f_array[fd]).f_op_tbl_ptr->write(fd, buf, nbytes);
 }
 
 /* 
@@ -246,6 +229,7 @@ int32_t syscall_open(const uint8_t* filename){
     for(i = 0; i < 8; i++){
         if( pcb_ptr[i]->active == 0){
             curr = i;
+            break;
         }
     }
     if(curr == -1){
@@ -295,7 +279,7 @@ int32_t syscall_open(const uint8_t* filename){
         return -1;
     }
 
-    return curr;
+    return j;
 }
 
 /* 
