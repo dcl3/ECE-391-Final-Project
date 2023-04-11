@@ -7,6 +7,8 @@ extern void systemcall_handler();
 
 extern void jump_usermode();
 
+extern void flush_tlb();
+
 uint32_t test_user_function;
 
 #endif

@@ -27,7 +27,6 @@ int32_t syscall_halt(uint8_t status){
 int32_t syscall_execute(const uint8_t* command){
     // paging setup
     num_processes += 1;
-    load_user(num_processes);
 
     // parse cmd
     dentry_t* dentry;
@@ -62,6 +61,13 @@ int32_t syscall_execute(const uint8_t* command){
     } else {
         return -1;
     }
+
+    load_user(num_processes);
+    flush_tlb();
+    register uint32_t save_ebp asm("ebp");
+    register uint32_t save_esp asm("esp");
+    pcb[num_processes - 1].ebp = save_ebp;
+    pcb[num_processes - 1].esp = save_esp;
 
     load_program(dentry->inode_num, num_processes);
 
