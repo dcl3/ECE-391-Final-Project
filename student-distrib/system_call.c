@@ -34,8 +34,8 @@ int32_t syscall_execute(const uint8_t* command){
     int cmd_idx = 0;
     int arg_idx = 0;
 
-    uint8_t cmd[32] = { '\0' };
-    uint8_t arg[32] = { '\0' };
+    uint8_t cmd[MAX_F_NAME_LENGTH] = { '\0' };
+    uint8_t arg[MAX_F_NAME_LENGTH] = { '\0' };
     cli();
     // parse cmd
     if (command == NULL)
@@ -70,7 +70,7 @@ int32_t syscall_execute(const uint8_t* command){
     // paging setup
     num_processes += 1;
 
-    pcb_t* temp_pcb = (pcb_t*)(0x0800000 - ((num_processes) * 2 * FOUR_KB));
+    pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
 
     // fill in pcb
     temp_pcb->id = num_processes - 1;
@@ -139,20 +139,20 @@ int32_t syscall_execute(const uint8_t* command){
 
     load_program(dentry.inode_num, num_processes);
 
-    test_user_function = 0x08048000;
+    test_user_function = USER_MODE_OFF;
 
     // int i;
     // for (i = 0; i < 4; i++) {
     //     printf("magic num %s", *((uint32_t*) test_user_function + i));
     // }
 
-    uint8_t* eip_arg_ptr = (uint8_t*) test_user_function + 24;
+    uint8_t* eip_arg_ptr = (uint8_t*) test_user_function + EIP_OFF;
     eip_arg = *((uint32_t*)eip_arg_ptr);
     user_cs_arg = USER_CS;
-    esp_arg = 0x08000000 + FOUR_MB - 4;
+    esp_arg = USER_MODE + FOUR_MB - FOUR_B;
     user_ds_arg = USER_DS;
 
-    tss.esp0 = 0x0800000 - ((num_processes - 1) * 0x2000) - 4;
+    tss.esp0 = EIGHT_MB - ((num_processes - 1) * EIGHT_KB) - FOUR_B;
     tss.ss0 = KERNEL_DS;
 
     pcb_ptr[num_processes - 1] = temp_pcb;
@@ -244,7 +244,7 @@ int32_t syscall_open(const uint8_t* filename){
     int curr = -1;
     int i; 
     for(i = 0; i < 8; i++){
-        if( pcb[i].active == 0){
+        if( pcb_ptr[i]->active == 0){
             curr = i;
         }
     }
@@ -253,10 +253,10 @@ int32_t syscall_open(const uint8_t* filename){
     }
     int j;
     for(j = 0; j < 8; j++){
-        if(pcb[curr].f_array[j].flags == 0){
-            pcb[curr].f_array[j].flags = 1; 
-            pcb[curr].f_array[j].inode = dentry.inode_num;
-            pcb[curr].f_array[j].f_pos = 0;
+        if(pcb_ptr[curr]->f_array[j].flags == 0){
+            pcb_ptr[curr]->f_array[j].flags = 1; 
+            pcb_ptr[curr]->f_array[j].inode = dentry.inode_num;
+            pcb_ptr[curr]->f_array[j].f_pos = 0;
             break;
         }
     }
@@ -269,7 +269,7 @@ int32_t syscall_open(const uint8_t* filename){
         temp_f_op_tbl.write = &rtc_write;
         temp_f_op_tbl.close = &rtc_close;
 
-        pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
     else if ((dentry.f_type) == 1){
         f_op_tbl_t temp_f_op_tbl;
@@ -279,7 +279,7 @@ int32_t syscall_open(const uint8_t* filename){
         temp_f_op_tbl.write = &dir_write;
         temp_f_op_tbl.close = &dir_close;
 
-        pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
     else if ((dentry.f_type) == 2){
         f_op_tbl_t temp_f_op_tbl;
@@ -289,7 +289,7 @@ int32_t syscall_open(const uint8_t* filename){
         temp_f_op_tbl.write = &file_write;
         temp_f_op_tbl.close = &file_close;
 
-        pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
     else{
         return -1;

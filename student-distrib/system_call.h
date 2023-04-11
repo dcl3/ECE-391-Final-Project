@@ -3,6 +3,16 @@
 #include "task_struct.h"
 
 #define MAX_TASK 2
+#define MAX_F_NAME_LENGTH 32
+
+#define EIGHT_MB 0x0800000
+#define EIGHT_KB 0x2000
+
+#define USER_MODE 0x08000000
+#define USER_MODE_OFF 0x08048000
+
+#define EIP_OFF 24
+#define FOUR_B 4
 
 pcb_t* pcb_ptr[MAX_TASK];
 
