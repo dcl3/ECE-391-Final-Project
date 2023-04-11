@@ -63,6 +63,11 @@ int32_t syscall_execute(const uint8_t* command){
     }
 
     load_user(num_processes);
+    flush_tlb();
+    register uint32_t save_ebp asm("ebp");
+    register uint32_t save_esp asm("esp");
+    pcb[num_processes - 1].ebp = save_ebp;
+    pcb[num_processes - 1].esp = save_esp;
 
     load_program(dentry->inode_num, num_processes);
 

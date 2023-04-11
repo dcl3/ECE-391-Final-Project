@@ -66,3 +66,8 @@ jump_usermode:
 	pushl (3 * 8) | 3 ; code selector (ring 3 code with bottom 2 bits set for ring 3)
 	pushl test_user_function ; instruction address to return to
 	iret
+
+flush_tlb:
+    movl %cr3, %eax
+    movl %eax, %cr3
+    ret
