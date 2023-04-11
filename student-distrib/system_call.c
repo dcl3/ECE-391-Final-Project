@@ -5,6 +5,8 @@
 #include "systemcall_link.h"
 #include "x86_desc.h"
 #include "terminal.h"
+#include "types.h"
+#include "lib.h"
 
 uint8_t num_processes = 0;
 
@@ -29,14 +31,44 @@ int32_t syscall_halt(uint8_t status){
  *   REFERENCE:
  */
 int32_t syscall_execute(const uint8_t* command){
-    // paging setup
-    num_processes += 1;
+    int cmd_idx = 0;
+    int arg_idx = 0;
 
+    uint8_t cmd[32] = { '\0' };
+    uint8_t arg[32] = { '\0' };
+    cli();
     // parse cmd
+    if (command == NULL)
+        return -1;
+    int i;
+    for(i = 0 ; i < strlen((const int8_t*) command) ; i++){
+        if(command[i] == ' '){
+            if(cmd_idx > 0)
+                break;
+        }
+        else{
+            cmd[cmd_idx] = command[i];
+            cmd_idx++;
+        }
+    }
+
+    for(; i < strlen((const int8_t*) command) ; i++){
+         if(command[i] == ' '){
+            if(arg_idx > 0)
+                break;
+        }
+        else{
+            arg[arg_idx] = command[i];
+            arg_idx++;
+        }
+    }
+
     dentry_t dentry;
-    if (read_dentry_by_name(command, &dentry) == -1) {
+    if (read_dentry_by_name(cmd, &dentry) == -1) {
         return -1;
     };
+    // paging setup
+    num_processes += 1;
 
     pcb_t* temp_pcb = (pcb_t*)(0x0800000 - ((num_processes) * 2 * FOUR_KB));
 
@@ -45,11 +77,17 @@ int32_t syscall_execute(const uint8_t* command){
     temp_pcb->active = 1;
 
     // fill in file array
-    temp_pcb->f_array[2].inode = dentry.inode_num;
-    temp_pcb->f_array[2].f_pos = 0;
-    temp_pcb->f_array[2].flags = 1;
+    // temp_pcb->f_array[2].inode = dentry.inode_num;
+    // temp_pcb->f_array[2].f_pos = 0;
+    // temp_pcb->f_array[2].flags = 1;
 
     f_op_tbl_t temp_f_op_tbl;
+
+    for(i = 0 ; i < MAX_FD ; i++){
+        temp_pcb->f_array[i].flags = 0;
+        temp_pcb->f_array[i].f_pos = 0;
+        temp_pcb->f_array[i].inode = 0;
+    }
 
     temp_f_op_tbl.open = &terminal_open;
     temp_f_op_tbl.read = &terminal_read;
@@ -110,20 +148,34 @@ int32_t syscall_execute(const uint8_t* command){
 
     uint8_t* eip_arg_ptr = (uint8_t*) test_user_function + 24;
     eip_arg = *((uint32_t*)eip_arg_ptr);
-    eip_arg = eip_arg;
     user_cs_arg = USER_CS;
     esp_arg = 0x08000000 + FOUR_MB - 4;
     user_ds_arg = USER_DS;
 
-    tss.esp0 = 0x0800000 - ((num_processes - 1) * MAX_FD * 0x400) - 4;
+    tss.esp0 = 0x0800000 - ((num_processes - 1) * 0x2000) - 4;
     tss.ss0 = KERNEL_DS;
 
     pcb_ptr[num_processes - 1] = temp_pcb;
 
-    // cli();
+    sti();
 
     // jump to usermode
     jump_usermode();
+    // asm volatile("movw %%bx, %%ds     \n\
+    //     pushl %%ebx         \n\
+    //     pushl %%edx         \n\
+    //     pushfl              \n\
+    //     popl %%edx          \n\
+    //     orl $0x0200, %%edx  \n\
+    //     pushl %%edx         \n\
+    //     pushl %%ecx         \n\
+    //     pushl %%eax         \n\
+    //     iret                \n\
+    //     "
+    //     :
+    //     : "a"(USER_DS), "b"(esp_arg), "c"(USER_CS), "d"(eip_arg)
+    //     : "memory"
+    // );
 
     return 0;
 }
@@ -139,6 +191,7 @@ int32_t syscall_execute(const uint8_t* command){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
+    pcb_t* pcb;
     // check if the any of the inputs are valid
     if(fd < 0 || buf == NULL || nbytes < 0){
        return -1;
@@ -160,6 +213,7 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
+    pcb_t* pcb;
     // check if the any of the inputs are valid
     if(fd < 0 || buf == NULL || nbytes < 0){
        return -1;
@@ -177,6 +231,7 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
  *   REFERENCE: ECE391 MP3 Documentation 
  */
 int32_t syscall_open(const uint8_t* filename){
+    pcb_t* pcb;
     // find the directory entry corresponding to the named file
     if(filename == NULL){
         return -1;
@@ -253,6 +308,7 @@ int32_t syscall_open(const uint8_t* filename){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
+    pcb_t* pcb;
     if(pcb[num_processes].f_array[fd].flags == 0) return -1;
 
     pcb[num_processes].f_array[fd].flags = 0;
