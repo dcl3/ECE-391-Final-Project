@@ -291,14 +291,13 @@ int32_t syscall_open(const uint8_t* filename){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
-    pcb_t* pcb;
-    if(pcb[num_processes].f_array[fd].flags == 0) return -1;
+    if(pcb_ptr[num_processes]->f_array[fd].flags == 0) return -1;
 
-    pcb[num_processes].f_array[fd].flags = 0;
-    pcb[num_processes].f_array[fd].f_pos = 0;
-    pcb[num_processes].f_array[fd].inode = 0;
+    pcb_ptr[num_processes]->f_array[fd].flags = 0;
+    pcb_ptr[num_processes]->f_array[fd].f_pos = 0;
+    pcb_ptr[num_processes]->f_array[fd].inode = 0;
 
-    pcb[num_processes].f_array[fd].f_op_tbl_ptr->close(fd);
+    pcb_ptr[num_processes]->f_array[fd].f_op_tbl_ptr->close(fd);
 
     return 0;
 }
