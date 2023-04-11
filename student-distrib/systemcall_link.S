@@ -1,5 +1,8 @@
 #define ASM
 
+.global jump_usermode
+extern test_user_function
+
 .align 4
 systemcall_table:
     .long 0x0
@@ -47,3 +50,19 @@ systemcall_return:
     popl %edi
     popl %esi
     iret
+
+jump_usermode:
+	movw (4 * 8) | 3, ax ; ring 3 data with bottom 2 bits set for ring 3
+	movw ax, ds
+	movw ax, es
+	movw ax, fs
+	movw ax, gs ; SS is handled by iret
+ 
+	; set up the stack frame iret expects
+	movl esp, eax
+	pushl (4 * 8) | 3 ; data selector
+	pushl eax ; current esp
+	pushf ; eflags
+	pushl (3 * 8) | 3 ; code selector (ring 3 code with bottom 2 bits set for ring 3)
+	pushl test_user_function ; instruction address to return to
+	iret

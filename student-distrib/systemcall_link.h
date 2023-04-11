@@ -5,4 +5,8 @@
 
 extern void systemcall_handler();
 
+extern void jump_usermode();
+
+uint32_t test_user_function;
+
 #endif

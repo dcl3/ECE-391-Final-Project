@@ -2,6 +2,7 @@
 #include "paging.h"
 #include "filesystem.h"
 #include "rtc.h"
+#include "systemcall_link.h"
 
 /* 
  * system_halt
@@ -61,6 +62,13 @@ int32_t syscall_execute(const uint8_t* command){
     } else {
         return -1;
     }
+
+    load_program(dentry->inode_num, num_processes);
+
+    register uint32_t test_user_function asm("eip");
+
+    // jump to usermode
+    jump_usermode();
 
     return 0;
 }
