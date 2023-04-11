@@ -51,22 +51,14 @@ systemcall_return:
     popl %esi
     iret
 
-.globl jump_usermode
 jump_usermode:
-	movw (4 * 8) | 3, %ax # ring 3 data with bottom 2 bits set for ring 3
-	movw %ax, %ds
-	movw %ax, %es
-	movw %ax, %fs
-	movw %ax, %gs # SS is handled by iret
- 
-	# set up the stack frame iret expects
-	movl %esp, %eax
-	pushl (4 * 8) | 3 # data selector
-	pushl %eax # current esp
-	pushf # eflags
-	pushl (3 * 8) | 3 # code selector (ring 3 code with bottom 2 bits set for ring 3)
-	pushl test_user_function # instruction address to return to
-	iret
+    movw user_ds_arg, %ds
+    pushl user_ds_arg
+    pushl esp_arg
+    pushfl
+    pushl user_cs_arg
+    pushl eip_arg
+    iret
 
 .globl flush_tlb
 flush_tlb:

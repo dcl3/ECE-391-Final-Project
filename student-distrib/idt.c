@@ -8,6 +8,7 @@
 // #include "keyboard.h"
 #include "interrupt_link.h"
 #include "rtc.h"
+#include "systemcall_link.h"
 
 /* 
  * idt_init
@@ -90,7 +91,7 @@ void idt_init(void) {
     idt[SYS_CALL].reserved3 = 1;
     idt[SYS_CALL].dpl = DPL_USER;
     idt[SYS_CALL].present = 1;
-    SET_IDT_ENTRY(idt[SYS_CALL], sys_call);
+    SET_IDT_ENTRY(idt[SYS_CALL], systemcall_handler);
 
     // modify idt entry for keyboard
     idt[0x21].present = 1;
@@ -214,11 +215,5 @@ void mc(void) {
 // function for SIMD Floating ponit exception
 void xf(void) {
     printf("SIMD Floating-Point Exception\n");
-    while(1){};
-}
-
-// function for SYstem call
-void sys_call(void) {
-    printf("System Call\n");
     while(1){};
 }
