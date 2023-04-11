@@ -231,13 +231,12 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
  *   REFERENCE: ECE391 MP3 Documentation 
  */
 int32_t syscall_open(const uint8_t* filename){
-    pcb_t* pcb;
     // find the directory entry corresponding to the named file
     if(filename == NULL){
         return -1;
     }
-    dentry_t* null_ptr = NULL;
-    if (read_dentry_by_name(filename, null_ptr) == -1){
+    dentry_t dentry;
+    if (read_dentry_by_name(filename, &dentry) == -1){
         return -1;
     }
 
@@ -256,13 +255,13 @@ int32_t syscall_open(const uint8_t* filename){
     for(j = 0; j < 8; j++){
         if(pcb[curr].f_array[j].flags == 0){
             pcb[curr].f_array[j].flags = 1; 
-            pcb[curr].f_array[j].inode = null_ptr->inode_num;
+            pcb[curr].f_array[j].inode = dentry.inode_num;
             pcb[curr].f_array[j].f_pos = 0;
             break;
         }
     }
     // and set up any data necessary to handle the given type of file (directory, RTC device, or regular file).
-    if ((null_ptr->f_type) == 0){
+    if ((dentry.f_type) == 0){
         f_op_tbl_t temp_f_op_tbl;
 
         temp_f_op_tbl.open = &rtc_open;
@@ -272,7 +271,7 @@ int32_t syscall_open(const uint8_t* filename){
 
         pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
-    else if ((null_ptr->f_type) == 1){
+    else if ((dentry.f_type) == 1){
         f_op_tbl_t temp_f_op_tbl;
 
         temp_f_op_tbl.open = &dir_open;
@@ -282,7 +281,7 @@ int32_t syscall_open(const uint8_t* filename){
 
         pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
-    else if ((null_ptr->f_type) == 2){
+    else if ((dentry.f_type) == 2){
         f_op_tbl_t temp_f_op_tbl;
 
         temp_f_op_tbl.open = &file_open;
@@ -296,7 +295,7 @@ int32_t syscall_open(const uint8_t* filename){
         return -1;
     }
 
-    return 0;
+    return curr;
 }
 
 /* 
