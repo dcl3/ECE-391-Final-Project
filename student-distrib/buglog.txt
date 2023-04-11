@@ -102,7 +102,7 @@ ___________________________________________________________________________
 
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-                                BUG LOG 9                                 | 
+                                BUG LOG 10                                | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
 Had a problem where the terminal was not displaying the correct characters
 when typing. The problem was that the terminal was not clearing the characters
@@ -110,3 +110,29 @@ when the backspace was pressed. Instead, it was just overwriting the characters
 with the new characters. The problem was that the backspace was not clearing
 the characters before the x position was decremented.
 ___________________________________________________________________________
+
+
+
+
+*Checkpoint 3:
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 11                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+when we run system call execute, we got a page fault when we try to fill 
+in file array with read, write, open and close. Later, when we debug it
+using gdb, we found out that we don't have an object set up, which is the
+reason why we keep getting page fault. So we change something like this:
+pcb[curr].f_array[j].f_op_tbl_ptr->open = (int32_t*) &rtc_open;
+pcb[curr].f_array[j].f_op_tbl_ptr->close = (int32_t*) &rtc_close;
+pcb[curr].f_array[j].f_op_tbl_ptr->read = (int32_t*) &rtc_read;
+pcb[curr].f_array[j].f_op_tbl_ptr->write = (int32_t*) &rtc_write;
+to this:
+f_op_tbl_t temp_f_op_tbl;
+temp_f_op_tbl.open = &rtc_open;
+temp_f_op_tbl.read = &rtc_read;
+temp_f_op_tbl.write = &rtc_write;
+temp_f_op_tbl.close = &rtc_close;
+pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+___________________________________________________________________________
+
