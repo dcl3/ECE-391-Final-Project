@@ -129,51 +129,139 @@ int32_t syscall_execute(const uint8_t* command){
 }
 
 /* 
- * system_halt
- *   DESCRIPTION: 
- *   INPUTS: 
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ * system_read
+ *   DESCRIPTION: The read system call reads data from the keyboard, a file, device (RTC), or directory. 
+ *   INPUTS: fd - file descriptor
+*           buf - buffer to read into
+*           nbytes - number of bytes to read
+ *   OUTPUTS: number of bytes read
+ *   RETURN VALUE: -1 for fail, otherwise success
+ *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
-    return -1;
+    // check if the any of the inputs are valid
+    if(fd < 0 || buf == NULL || nbytes < 0){
+       return -1;
+    }
+
+    return (pcb[num_processes].f_array[fd]).f_op_tbl_ptr->read(fd, buf, nbytes);
 }
 
 /* 
- * system_halt
- *   DESCRIPTION: 
- *   INPUTS: 
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ * system_write
+ *   DESCRIPTION: The write system call writes data to the terminal or to a device (RTC). In the case of the terminal, all data should 
+ * be displayed to the screen immediately. In the case of the RTC, the system call should always accept only a 4-byte
+ * integer specifying the interrupt rate in Hz, and should set the rate of periodic interrupts accordingly.
+ *   INPUTS: fd - file descriptor
+*           buf - buffer to read into
+*           nbytes - number of bytes to read
+ *   OUTPUTS: number of bytes write
+ *   RETURN VALUE: -1 for fail, otherwise success
+ *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
-    return -1;
+    // check if the any of the inputs are valid
+    if(fd < 0 || buf == NULL || nbytes < 0){
+       return -1;
+    }
+    
+    return (pcb[num_processes].f_array[fd]).f_op_tbl_ptr->write(fd, buf, nbytes);
 }
 
 /* 
- * system_halt
- *   DESCRIPTION: 
- *   INPUTS: 
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ * system_open
+ *   DESCRIPTION: The open system call provides access to the file system.
+ *   INPUTS: filename - name of file to open
+ *   OUTPUTS: none
+ *   RETURN VALUE:-1 for fail, otherwise success
+ *   REFERENCE: ECE391 MP3 Documentation 
  */
 int32_t syscall_open(const uint8_t* filename){
-    return -1;
+    // find the directory entry corresponding to the named file
+    if(filename == NULL){
+        return -1;
+    }
+    dentry_t* null_ptr = NULL;
+    if (read_dentry_by_name(filename, null_ptr) == -1){
+        return -1;
+    }
+
+    // allocate an unused file descriptor
+    int curr = -1;
+    int i; 
+    for(i = 0; i < 8; i++){
+        if( pcb[i].active == 0){
+            curr = i;
+        }
+    }
+    if(curr == -1){
+        return -1;
+    }
+    int j;
+    for(j = 0; j < 8; j++){
+        if(pcb[curr].f_array[j].flags == 0){
+            pcb[curr].f_array[j].flags = 1; 
+            pcb[curr].f_array[j].inode = null_ptr->inode_num;
+            pcb[curr].f_array[j].f_pos = 0;
+            break;
+        }
+    }
+    // and set up any data necessary to handle the given type of file (directory, RTC device, or regular file).
+    if ((null_ptr->f_type) == 0){
+        f_op_tbl_t temp_f_op_tbl;
+
+        temp_f_op_tbl.open = &rtc_open;
+        temp_f_op_tbl.read = &rtc_read;
+        temp_f_op_tbl.write = &rtc_write;
+        temp_f_op_tbl.close = &rtc_close;
+
+        pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+    }
+    else if ((null_ptr->f_type) == 1){
+        f_op_tbl_t temp_f_op_tbl;
+
+        temp_f_op_tbl.open = &dir_open;
+        temp_f_op_tbl.read = &dir_read;
+        temp_f_op_tbl.write = &dir_write;
+        temp_f_op_tbl.close = &dir_close;
+
+        pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+    }
+    else if ((null_ptr->f_type) == 2){
+        f_op_tbl_t temp_f_op_tbl;
+
+        temp_f_op_tbl.open = &file_open;
+        temp_f_op_tbl.read = &file_read;
+        temp_f_op_tbl.write = &file_write;
+        temp_f_op_tbl.close = &file_close;
+
+        pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+    }
+    else{
+        return -1;
+    }
+
+    return 0;
 }
 
 /* 
- * system_halt
- *   DESCRIPTION: 
- *   INPUTS: 
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ * system_close
+ *   DESCRIPTION: The close system call closes the specified file descriptor and makes it available for return from later calls to open.
+ *   INPUTS: fd - file descriptor
+ *   OUTPUTS: none
+ *   RETURN VALUE: -1 for fail, 0 for success
+ *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
-    return -1;
+    if(pcb[num_processes].f_array[fd].flags == 0) return -1;
+
+    pcb[num_processes].f_array[fd].flags = 0;
+    pcb[num_processes].f_array[fd].f_pos = 0;
+    pcb[num_processes].f_array[fd].inode = 0;
+
+    pcb[num_processes].f_array[fd].f_op_tbl_ptr->close(fd);
+
+    return 0;
 }
 
 /* 
