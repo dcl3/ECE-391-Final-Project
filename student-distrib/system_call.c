@@ -95,7 +95,7 @@ int32_t syscall_execute(const uint8_t* command){
     esp_arg = 0x08000000 + FOUR_MB - sizeof(uint32_t);
     user_ds_arg = USER_DS;
 
-    tss.esp0 = esp_arg;
+    tss.esp0 = (2 * FOUR_MB) - ((2 * FOUR_KB) * (num_processes - 1)) - sizeof(uint32_t);
     tss.ss0 = KERNEL_DS;
 
     // jump to usermode
