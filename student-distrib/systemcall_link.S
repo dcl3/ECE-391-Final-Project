@@ -51,8 +51,16 @@ systemcall_return:
     popl %esi
     iret
 
-jump_usermode:
+jump_usermode_unused:
     movw user_ds_arg, %ds
+    pushl user_ds_arg
+    pushl esp_arg
+    pushfl
+    pushl user_cs_arg
+    pushl eip_arg
+    iret
+
+jump_usermode:
     pushl user_ds_arg
     pushl esp_arg
     pushfl

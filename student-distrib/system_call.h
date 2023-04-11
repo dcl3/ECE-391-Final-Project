@@ -4,7 +4,7 @@
 
 #define MAX_TASK 2
 
-pcb_t pcb[MAX_TASK];
+pcb_t* pcb_ptr[MAX_TASK];
 
 // reference from appendex B, the ten system calls that we need to implement, numbered 1 through 10
 int32_t syscall_halt(uint8_t status);                                        //1

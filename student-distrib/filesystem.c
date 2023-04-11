@@ -118,21 +118,21 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
         // index within the data block
         data_idx = (i + offset) % (MAX_DATA);
 
-        memcpy(buf + i, &(dblock_ptr + dblock)->data[data_idx], 1);
+        // memcpy(buf + i, &(dblock_ptr + dblock)->data[data_idx], 1);
 
         // fill in buffer with data
-        // buf[i] = (dblock_ptr + dblock)->data[data_idx];
+        buf[i] = (dblock_ptr + dblock)->data[data_idx];
     }
 
     return length;
 };
 
-int32_t load_program(uint32_t inode, uint32_t num_proc) {
-    inode_t* temp_inode_ptr = inode_ptr + inode;
+int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
+    inode_t* temp_inode_ptr = inode_ptr + inode_num;
 
     // uint8_t* buf;
 
-    read_data(inode, 0, (uint8_t*) 0x8048000, temp_inode_ptr->length);
+    read_data(inode_num, 0, (int8_t*) 0x08048000, temp_inode_ptr->length);
 
     // memcpy((uint32_t*) 0x848000 + (num_proc * 0x400000), &buf, temp_inode_ptr->length);
 
