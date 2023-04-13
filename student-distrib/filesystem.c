@@ -4,6 +4,8 @@
 
 #include "filesystem.h"
 #include "lib.h"
+#include "task_struct.h"
+#include "system_call.h"
 
 // pointers to filesystem structures
 boot_block_t* boot_block_ptr;
@@ -132,7 +134,7 @@ int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
 
     // uint8_t* buf;
 
-    read_data(inode_num, 0, (uint32_t*) 0x08048000, temp_inode_ptr->length);
+    read_data(inode_num, 0, (uint8_t*) 0x08048000, temp_inode_ptr->length);
 
     // memcpy((uint32_t*) 0x848000 + (num_proc * 0x400000), &buf, temp_inode_ptr->length);
 
@@ -226,11 +228,18 @@ int32_t dir_close (int32_t fd) {
  *   RETURN VALUE: 0 if reach end of file, number of bytes on success, -1 on failure
  */
 int32_t file_read (int32_t fd, void* buf, int32_t nbytes) {
+    uint32_t i;
     dentry_t dentry;
     // printf("num_read: %d\n", num_read);
 
+    for (i = 0; i < boot_block_ptr->num_dentries; i++) {
+        if (boot_block_ptr->dentries[i].inode_num == pcb_ptr[0]->f_array[fd].inode) {
+            break;
+        }
+    }
+
     // fill dentry based on file
-    read_dentry_by_index(fd, &dentry);
+    read_dentry_by_index(i, &dentry);
 
     // fill buffer with data
     return read_data(dentry.inode_num, 0, (uint8_t*) buf, nbytes);

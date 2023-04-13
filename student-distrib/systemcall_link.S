@@ -64,10 +64,7 @@ jump_usermode:
     movw user_ds_arg, %ds
     pushl user_ds_arg
     pushl esp_arg
-    pushfl
-    popl %eax
-    orl $0x0200, %eax
-    pushl %eax
+    pushl $0x202
     pushl user_cs_arg
     pushl eip_arg
     iret

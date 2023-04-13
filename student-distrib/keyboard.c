@@ -64,6 +64,7 @@ void keyboard_init() {
  *      https://wiki.osdev.org
  */
 extern void keyboard_handler() {
+    // printf("keyboard\n");
     // Set critical section
     cli();
     uint8_t scancode;
