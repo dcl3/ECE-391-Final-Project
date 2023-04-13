@@ -132,7 +132,7 @@ int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
 
     // uint8_t* buf;
 
-    read_data(inode_num, 0, (int8_t*) 0x08048000, temp_inode_ptr->length);
+    read_data(inode_num, 0, (uint32_t*) 0x08048000, temp_inode_ptr->length);
 
     // memcpy((uint32_t*) 0x848000 + (num_proc * 0x400000), &buf, temp_inode_ptr->length);
 
