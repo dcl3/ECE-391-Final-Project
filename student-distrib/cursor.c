@@ -2,6 +2,7 @@
  * vim:ts=4 noexpandtab */
 
 #include "cursor.h"
+#include "lib.h"
 
 void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
 {

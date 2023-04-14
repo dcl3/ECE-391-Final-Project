@@ -2,7 +2,6 @@
 #define _CURSOR_H
 
 #include "types.h"
-#include "lib.h"
 
 #define VGA_WIDTH 80
 #define OFFSET_8 8

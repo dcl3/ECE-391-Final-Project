@@ -25,7 +25,7 @@ void paging_init() {
     load_enable_paging(page_directory);
 }
 
-void load_user(uint32_t num_proc) {
+void load_user(uint32_t curr_proc) {
     // 32 * 4MB = 128 MB
-    page_directory[USER_DIR_OFF] = ((USER_ADDR + ((num_proc - 1) * FOUR_MB)) & UPPER_TEN) | USER_READ_WRITE_P_FOUR_MB;
+    page_directory[USER_DIR_OFF] = ((USER_ADDR + (curr_proc * FOUR_MB)) & UPPER_TEN) | USER_READ_WRITE_P_FOUR_MB;
 }

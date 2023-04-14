@@ -1,5 +1,4 @@
 #include "types.h"
-#include "i8259.h"
 
 #define RTC_IRQ_NUMBER      8
 

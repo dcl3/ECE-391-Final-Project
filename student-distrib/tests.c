@@ -6,6 +6,7 @@
 #include "terminal.h"
 #include "system_call.h"
 #include "paging.h"
+#include "task_struct.h"
 
 #define PASS 1
 #define FAIL 0
@@ -361,7 +362,7 @@ int terminal_write_test(){
  * Coverage: terminal_write
  * Files: terminal.c/h
  */
-int system_call_Open_test(){
+int system_call_open_test(){
     TEST_HEADER;
     int result = PASS;
 
@@ -425,5 +426,5 @@ void launch_tests(){
     // TEST_OUTPUT("large_file_read_test", large_file_read_test());
     // TEST_OUTPUT("terminal_read_test", terminal_read_test());
     // TEST_OUTPUT("terminal_write_test", terminal_write_test());
-    TEST_OUTPUT("system_call_Open_test", system_call_Open_test());
+    TEST_OUTPUT("system_call_open_test", system_call_open_test());
 }

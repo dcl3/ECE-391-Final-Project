@@ -3,7 +3,6 @@
  */
 
 #include "types.h"
-#include "lib.h"
 
 #define NUM_ENTRIES 1024
 #define PAGE_SIZE 4096

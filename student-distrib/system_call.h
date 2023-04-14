@@ -1,8 +1,5 @@
 #include "types.h"
-#include "rtc.h"
-#include "task_struct.h"
 
-#define MAX_TASK 2
 #define MAX_F_NAME_LENGTH 32
 
 #define EIGHT_MB 0x0800000
@@ -13,8 +10,6 @@
 
 #define EIP_OFF 24
 #define FOUR_B 4
-
-pcb_t* pcb_ptr[MAX_TASK];
 
 // reference from appendex B, the ten system calls that we need to implement, numbered 1 through 10
 int32_t syscall_halt(uint8_t status);                                        //1

@@ -7,6 +7,7 @@
 #include "types.h"
 
 #define MAX_FD 8
+#define MAX_TASK 2
 
 typedef struct f_op_tbl {
     int32_t (*open)(const uint8_t* filename);
@@ -30,5 +31,7 @@ typedef struct pcb {
     uint32_t saved_ebp;
     uint32_t active;
 } pcb_t;
+
+pcb_t* pcb_ptr[MAX_TASK];
 
 #endif /* _task_struct_H */

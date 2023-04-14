@@ -14,6 +14,9 @@
 #define MAX_DBLOCK_NUM 1023
 #define MAX_DATA 4096
 
+extern uint8_t num_processes;
+extern uint8_t curr_proc;
+
 // structure for directory entry
 typedef struct dentry {
     uint8_t f_name[FILE_NAME_LENGTH];

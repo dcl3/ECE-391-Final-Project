@@ -5,12 +5,14 @@
 #include "filesystem.h"
 #include "lib.h"
 #include "task_struct.h"
-#include "system_call.h"
 
 // pointers to filesystem structures
 boot_block_t* boot_block_ptr;
 inode_t* inode_ptr;
 dblock_t* dblock_ptr;
+
+uint8_t num_processes = 0;
+uint8_t curr_proc = 0;
 
 /* 
  * filesystem_init
@@ -233,7 +235,7 @@ int32_t file_read (int32_t fd, void* buf, int32_t nbytes) {
     // printf("num_read: %d\n", num_read);
 
     for (i = 0; i < boot_block_ptr->num_dentries; i++) {
-        if (boot_block_ptr->dentries[i].inode_num == pcb_ptr[0]->f_array[fd].inode) {
+        if (boot_block_ptr->dentries[i].inode_num == pcb_ptr[curr_proc]->f_array[fd].inode) {
             break;
         }
     }
@@ -264,6 +266,28 @@ int32_t file_write (int32_t fd, const void* buf, int32_t nbytes) {
  *   RETURN VALUE: 0
  */
 int32_t file_open (const uint8_t* filename) {
+    int i;
+    dentry_t* temp_dentry;
+    f_op_tbl_t temp_f_op_tbl;
+
+    for (i = 0; i < MAX_FD; i++) {
+        if (pcb_ptr[curr_proc]->f_array[i].flags == 0) {
+            break;
+        }
+    }
+
+    read_dentry_by_name(filename, temp_dentry);
+
+    temp_f_op_tbl.open = &file_open;
+    temp_f_op_tbl.read = &file_read;
+    temp_f_op_tbl.write = &file_write;
+    temp_f_op_tbl.close = &file_close;
+
+    pcb_ptr[curr_proc]->f_array[i].f_op_tbl_ptr = &temp_f_op_tbl;
+    pcb_ptr[curr_proc]->f_array[i].f_pos = 0;
+    pcb_ptr[curr_proc]->f_array[i].flags = 1;
+    pcb_ptr[curr_proc]->f_array[i].inode = temp_dentry->inode_num;
+    
     return 0;
 }
 
@@ -275,5 +299,10 @@ int32_t file_open (const uint8_t* filename) {
  *   RETURN VALUE: 0
  */
 int32_t file_close (int32_t fd) {
+    pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr = NULL;
+    pcb_ptr[curr_proc]->f_array[fd].f_pos = NULL;
+    pcb_ptr[curr_proc]->f_array[fd].flags = 0;
+    pcb_ptr[curr_proc]->f_array[fd].inode = NULL;
+    
     return 0;
 }

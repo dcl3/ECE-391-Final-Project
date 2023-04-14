@@ -1,7 +1,7 @@
 #ifndef SYSTEMCALL_LINK_H
 #define SYSTEMCALL_LINK_H
 
-#include "system_call.h"
+#include "types.h"
 
 extern void systemcall_handler();
 

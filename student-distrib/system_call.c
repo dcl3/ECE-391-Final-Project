@@ -5,10 +5,8 @@
 #include "systemcall_link.h"
 #include "x86_desc.h"
 #include "terminal.h"
-#include "types.h"
 #include "lib.h"
-
-uint8_t num_processes = 0;
+#include "task_struct.h"
 
 /* 
  * system_halt
@@ -37,9 +35,12 @@ int32_t syscall_execute(const uint8_t* command){
     uint8_t cmd[MAX_F_NAME_LENGTH] = { '\0' };
     uint8_t arg[MAX_F_NAME_LENGTH] = { '\0' };
     cli();
+
     // parse cmd
-    if (command == NULL)
+    if (command == NULL) {
         return -1;
+    }
+
     int i;
     for(i = 0 ; i < strlen((const int8_t*) command) ; i++){
         if(command[i] == ' '){
@@ -69,69 +70,39 @@ int32_t syscall_execute(const uint8_t* command){
     };
     // paging setup
     num_processes += 1;
+    curr_proc = num_processes - 1;
 
     pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
 
     // fill in pcb
-    temp_pcb->id = num_processes - 1;
+    temp_pcb->id = curr_proc;
     temp_pcb->active = 1;
-
-    // fill in file array
-    // temp_pcb->f_array[2].inode = dentry.inode_num;
-    // temp_pcb->f_array[2].f_pos = 0;
-    // temp_pcb->f_array[2].flags = 1;
 
     f_op_tbl_t temp_f_op_tbl;
 
+    // initialize file array properties
     for(i = 0 ; i < MAX_FD ; i++){
         temp_pcb->f_array[i].flags = 0;
         temp_pcb->f_array[i].f_pos = 0;
         temp_pcb->f_array[i].inode = 0;
     }
 
+    // function pointers fot stdin and stdout
     temp_f_op_tbl.open = &terminal_open;
     temp_f_op_tbl.read = &terminal_read;
     temp_f_op_tbl.write = &terminal_write;
     temp_f_op_tbl.close = &terminal_close;
 
+    // fill in file array for stdin and stdout
     temp_pcb->f_array[0].f_op_tbl_ptr = &temp_f_op_tbl;
     temp_pcb->f_array[0].flags = 1;
     temp_pcb->f_array[1].f_op_tbl_ptr = &temp_f_op_tbl;
     temp_pcb->f_array[1].flags = 1;
 
-    // if (dentry.f_type == 0) {
-    //     f_op_tbl_t temp_f_op_tbl;
-
-    //     temp_f_op_tbl.open = &rtc_open;
-    //     temp_f_op_tbl.read = &rtc_read;
-    //     temp_f_op_tbl.write = &rtc_write;
-    //     temp_f_op_tbl.close = &rtc_close;
-
-    //     temp_pcb->f_array[2].f_op_tbl_ptr = &temp_f_op_tbl;
-    // } else if (dentry.f_type == 1) {
-    //     f_op_tbl_t temp_f_op_tbl;
-
-    //     temp_f_op_tbl.open = &dir_open;
-    //     temp_f_op_tbl.read = &dir_read;
-    //     temp_f_op_tbl.write = &dir_write;
-    //     temp_f_op_tbl.close = &dir_close;
-
-    //     temp_pcb->f_array[2].f_op_tbl_ptr = &temp_f_op_tbl;
-    // } else if (dentry.f_type == 2) {
-    //     f_op_tbl_t temp_f_op_tbl;
-
-    //     temp_f_op_tbl.open = &file_open;
-    //     temp_f_op_tbl.read = &file_read;
-    //     temp_f_op_tbl.write = &file_write;
-    //     temp_f_op_tbl.close = &file_close;
-
-    //     temp_pcb->f_array[2].f_op_tbl_ptr = &temp_f_op_tbl;
-    // } else {
-    //     return -1;
-    // }
-
-    load_user(num_processes);
+    load_user(curr_proc);
     flush_tlb();
+
+    // set up ebp and esp property
     register uint32_t saved_ebp asm("ebp");
     register uint32_t saved_esp asm("esp");
     temp_pcb->saved_ebp = saved_ebp;
@@ -152,10 +123,10 @@ int32_t syscall_execute(const uint8_t* command){
     esp_arg = USER_MODE + FOUR_MB - FOUR_B;
     user_ds_arg = USER_DS;
 
-    tss.esp0 = EIGHT_MB - ((num_processes - 1) * EIGHT_KB) - FOUR_B;
+    tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
     tss.ss0 = KERNEL_DS;
 
-    pcb_ptr[num_processes - 1] = temp_pcb;
+    pcb_ptr[curr_proc] = temp_pcb;
 
     sti();
 
