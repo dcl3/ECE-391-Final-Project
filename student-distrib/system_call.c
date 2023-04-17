@@ -32,16 +32,19 @@ int32_t syscall_halt(uint8_t status){
         pcb_ptr[curr_proc]->f_array->inode = NULL;
     }
 
-    // map user page
-    load_user(parent_id);
-    flush_tlb();
-
     // set tss for parent
     tss.esp0 = EIGHT_MB - ((parent_id) * EIGHT_KB) - FOUR_B;
     tss.ss0 = KERNEL_DS;
 
+    // map user page
+    load_user(parent_id);
+    flush_tlb();
+
+    pcb_ptr[parent_id]->active = 1;
+
     halt_jump_ptr_arg = halt_jump_ptr;
     halt_esp_arg = pcb_ptr[curr_proc]->saved_esp;
+    // halt_esp_arg = 0x7fffcc;
     halt_ebp_arg = pcb_ptr[curr_proc]->saved_ebp;
 
     // decrease number of processes
@@ -113,6 +116,12 @@ int32_t syscall_execute(const uint8_t* command){
 
     pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
 
+    // set up ebp and esp property
+    register uint32_t saved_ebp asm("ebp");
+    register uint32_t saved_esp asm("esp");
+    temp_pcb->saved_ebp = saved_ebp;
+    temp_pcb->saved_esp = saved_esp;
+
     if (num_processes == 1) {
         temp_pcb->parent_id = -1;
         temp_pcb->id = curr_proc;
@@ -163,11 +172,11 @@ int32_t syscall_execute(const uint8_t* command){
     esp_arg = USER_MODE + FOUR_MB - FOUR_B;
     user_ds_arg = USER_DS;
 
-    // set up ebp and esp property
-    register uint32_t saved_ebp asm("ebp");
-    register uint32_t saved_esp asm("esp");
-    temp_pcb->saved_ebp = saved_ebp;
-    temp_pcb->saved_esp = saved_esp;
+    // // set up ebp and esp property
+    // register uint32_t saved_ebp asm("ebp");
+    // register uint32_t saved_esp asm("esp");
+    // temp_pcb->saved_ebp = saved_ebp;
+    // temp_pcb->saved_esp = saved_esp;
 
     tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
     temp_pcb->tss_esp0 = tss.esp0;
@@ -224,7 +233,7 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
        return -1;
     }
     
-    return (pcb_ptr[curr_proc]->f_array[fd]).f_op_tbl_ptr->write(fd, buf, nbytes);
+    return pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->write(fd, buf, nbytes);
 }
 
 /* 
