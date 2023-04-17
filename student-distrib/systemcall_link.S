@@ -25,19 +25,23 @@ systemcall_table:
 systemcall_handler:
     pushl %esi
     pushl %edi
-    pushl %ebp
-    pushfl
+    pushl %ebx
+
+    cmpl $0, %eax
+    jle  invalid_call
+    cmpl $10, %eax
+    jg  invalid_call
 
     pushl %edx
     pushl %ecx
     pushl %ebx
 
-    cmp $0, %eax
-    jle  invalid_call
-    cmp $10, %eax
-    jg  invalid_call
-
     call *systemcall_table(,%eax,4)
+
+    popl %ebx
+    popl %ecx
+    popl %edx
+
     jmp systemcall_return
 
 invalid_call:
@@ -45,11 +49,6 @@ invalid_call:
 
 systemcall_return:
     popl %ebx
-    popl %ecx
-    popl %edx
-
-    popfl
-    popl %ebp
     popl %edi
     popl %esi
     iret
@@ -89,9 +88,14 @@ halt_return_0:
     leave
     ret
 
-halt_return:
-    movl 8(%esp), %eax
-    movl 16(%esp), %esp
-    movl 12(%esp), %ebp
+halt_return_1:
+    movl %eax, %esp
+    movl %ecx, %ebp
 
-    ret
+    jmp *%edx
+
+halt_return:
+    movl halt_esp_arg, %esp
+    movl halt_ebp_arg, %ebp
+
+    jmp *halt_jump_ptr_arg

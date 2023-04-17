@@ -20,18 +20,39 @@ int32_t syscall_halt(uint8_t status){
     // get parent process
     uint32_t parent_id = pcb_ptr[curr_proc]->parent_id;
 
+    // set inactive
     pcb_ptr[curr_proc]->active = 0;
 
-    // set tss for parent
-    tss.esp0 = pcb_ptr[parent_id]->tss_esp0;
-    tss.ss0 = KERNEL_DS;
+    // close files
+    int i;
+    for (i = 0; i < MAX_FD; i++) {
+        pcb_ptr[curr_proc]->f_array->f_op_tbl_ptr = NULL;
+        pcb_ptr[curr_proc]->f_array->f_pos = NULL;
+        pcb_ptr[curr_proc]->f_array->flags = NULL;
+        pcb_ptr[curr_proc]->f_array->inode = NULL;
+    }
 
+    // map user page
     load_user(parent_id);
     flush_tlb();
 
-    tss.esp0 = pcb_ptr[parent_id]->tss_esp0;
+    // set tss for parent
+    tss.esp0 = EIGHT_MB - ((parent_id) * EIGHT_KB) - FOUR_B;
+    tss.ss0 = KERNEL_DS;
 
-    halt_return(pcb_ptr[parent_id]->saved_esp, pcb_ptr[parent_id]->saved_ebp, (uint32_t) status);
+    halt_jump_ptr_arg = halt_jump_ptr;
+    halt_esp_arg = pcb_ptr[curr_proc]->saved_esp;
+    halt_ebp_arg = pcb_ptr[curr_proc]->saved_ebp;
+
+    // decrease number of processes
+    num_processes -= 1;
+    curr_proc = parent_id;
+
+    // halt_return((uint32_t) halt_jump_ptr, pcb_ptr[parent_id]->saved_esp, pcb_ptr[parent_id]->saved_ebp);
+
+    halt_status = (uint32_t) status;
+
+    halt_return();
 
     return -1;
 }
@@ -127,12 +148,6 @@ int32_t syscall_execute(const uint8_t* command){
     load_user(curr_proc);
     flush_tlb();
 
-    // set up ebp and esp property
-    register uint32_t saved_ebp asm("ebp");
-    register uint32_t saved_esp asm("esp");
-    temp_pcb->saved_ebp = saved_ebp;
-    temp_pcb->saved_esp = saved_esp;
-
     load_program(dentry.inode_num, num_processes);
 
     test_user_function = USER_MODE_OFF;
@@ -148,19 +163,28 @@ int32_t syscall_execute(const uint8_t* command){
     esp_arg = USER_MODE + FOUR_MB - FOUR_B;
     user_ds_arg = USER_DS;
 
+    // set up ebp and esp property
+    register uint32_t saved_ebp asm("ebp");
+    register uint32_t saved_esp asm("esp");
+    temp_pcb->saved_ebp = saved_ebp;
+    temp_pcb->saved_esp = saved_esp;
+
     tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
     temp_pcb->tss_esp0 = tss.esp0;
     tss.ss0 = KERNEL_DS;
 
     pcb_ptr[curr_proc] = temp_pcb;
 
+    halt_jump_ptr = (uint32_t) &&halt_jump;
+
     sti();
 
     // jump to usermode
     jump_usermode();
 
+    halt_jump:
 
-    return 0;
+    return halt_status;
 }
 
 /* 

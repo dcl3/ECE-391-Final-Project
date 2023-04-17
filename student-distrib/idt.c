@@ -88,6 +88,7 @@ void idt_init(void) {
     SET_IDT_ENTRY(idt[XF], xf);
 
     // modify idt entry for system call
+    idt[SYS_CALL].reserved3 = 1;
     idt[SYS_CALL].dpl = DPL_USER;
     idt[SYS_CALL].present = 1;
     SET_IDT_ENTRY(idt[SYS_CALL], systemcall_handler);

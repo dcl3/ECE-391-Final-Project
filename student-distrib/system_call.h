@@ -11,6 +11,9 @@
 #define EIP_OFF 24
 #define FOUR_B 4
 
+uint32_t halt_jump_ptr;
+uint32_t halt_status;
+
 // reference from appendex B, the ten system calls that we need to implement, numbered 1 through 10
 int32_t syscall_halt(uint8_t status);                                        //1
 int32_t syscall_execute(const uint8_t* command);                             //2
