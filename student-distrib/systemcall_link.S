@@ -1,6 +1,9 @@
 #define ASM
 
 .global jump_usermode
+
+.global halt_return
+
 .extern test_user_function
 
 .align 4
@@ -73,4 +76,22 @@ jump_usermode:
 flush_tlb:
     movl %cr3, %eax
     movl %eax, %cr3
+    ret
+
+halt_return_0:
+    pushl %ebp
+    movl %esp, %ebp
+
+    movl 8(%ebp), %eax
+    movl 16(%ebp), %esp
+    movl 12(%ebp), %ebp
+
+    leave
+    ret
+
+halt_return:
+    movl 8(%esp), %eax
+    movl 16(%esp), %esp
+    movl 12(%esp), %ebp
+
     ret

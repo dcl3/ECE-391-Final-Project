@@ -9,6 +9,8 @@ extern void jump_usermode();
 
 extern void flush_tlb();
 
+extern void halt_return(uint32_t esp, uint32_t ebp, uint8_t status);
+
 uint32_t test_user_function;
 
 uint32_t eip_arg;

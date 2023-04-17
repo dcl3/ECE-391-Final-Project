@@ -17,6 +17,22 @@
  *   REFERENCE:
  */
 int32_t syscall_halt(uint8_t status){
+    // get parent process
+    uint32_t parent_id = pcb_ptr[curr_proc]->parent_id;
+
+    pcb_ptr[curr_proc]->active = 0;
+
+    // set tss for parent
+    tss.esp0 = pcb_ptr[parent_id]->tss_esp0;
+    tss.ss0 = KERNEL_DS;
+
+    load_user(parent_id);
+    flush_tlb();
+
+    tss.esp0 = pcb_ptr[parent_id]->tss_esp0;
+
+    halt_return(pcb_ptr[parent_id]->saved_esp, pcb_ptr[parent_id]->saved_ebp, (uint32_t) status);
+
     return -1;
 }
 
@@ -38,6 +54,7 @@ int32_t syscall_execute(const uint8_t* command){
 
     // parse cmd
     if (command == NULL) {
+        sti();
         return -1;
     }
 
@@ -66,16 +83,24 @@ int32_t syscall_execute(const uint8_t* command){
 
     dentry_t dentry;
     if (read_dentry_by_name(cmd, &dentry) == -1) {
+        sti();
         return -1;
     };
-    // paging setup
+
     num_processes += 1;
     curr_proc = num_processes - 1;
 
     pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
 
+    if (num_processes == 1) {
+        temp_pcb->parent_id = -1;
+        temp_pcb->id = curr_proc;
+    } else {
+        temp_pcb->parent_id = pcb_ptr[curr_proc - 1]->id;
+        temp_pcb->id = curr_proc;
+    }
+
     // fill in pcb
-    temp_pcb->id = curr_proc;
     temp_pcb->active = 1;
 
     f_op_tbl_t temp_f_op_tbl;
@@ -118,12 +143,13 @@ int32_t syscall_execute(const uint8_t* command){
     // }
 
     uint8_t* eip_arg_ptr = (uint8_t*) test_user_function + EIP_OFF;
-    eip_arg = *((uint32_t*)eip_arg_ptr);
+    eip_arg = *((uint32_t*) eip_arg_ptr);
     user_cs_arg = USER_CS;
     esp_arg = USER_MODE + FOUR_MB - FOUR_B;
     user_ds_arg = USER_DS;
 
     tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
+    temp_pcb->tss_esp0 = tss.esp0;
     tss.ss0 = KERNEL_DS;
 
     pcb_ptr[curr_proc] = temp_pcb;
@@ -132,6 +158,7 @@ int32_t syscall_execute(const uint8_t* command){
 
     // jump to usermode
     jump_usermode();
+
 
     return 0;
 }
@@ -152,7 +179,7 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
        return -1;
     }
 
-    return (pcb_ptr[0]->f_array[fd]).f_op_tbl_ptr->read(fd, buf, nbytes);
+    return (pcb_ptr[curr_proc]->f_array[fd]).f_op_tbl_ptr->read(fd, buf, nbytes);
 }
 
 /* 
@@ -169,11 +196,11 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
  */
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
     // check if the any of the inputs are valid
-    if(fd < 0 || buf == NULL || nbytes < 0){
+    if(fd < 0 || fd > 8 || buf == NULL || nbytes < 0){
        return -1;
     }
     
-    return (pcb_ptr[0]->f_array[fd]).f_op_tbl_ptr->write(fd, buf, nbytes);
+    return (pcb_ptr[curr_proc]->f_array[fd]).f_op_tbl_ptr->write(fd, buf, nbytes);
 }
 
 /* 
@@ -208,10 +235,10 @@ int32_t syscall_open(const uint8_t* filename){
     }
     int j;
     for(j = 0; j < 8; j++){
-        if(pcb_ptr[curr]->f_array[j].flags == 0){
-            pcb_ptr[curr]->f_array[j].flags = 1; 
-            pcb_ptr[curr]->f_array[j].inode = dentry.inode_num;
-            pcb_ptr[curr]->f_array[j].f_pos = 0;
+        if(pcb_ptr[curr_proc]->f_array[j].flags == 0){
+            pcb_ptr[curr_proc]->f_array[j].flags = 1; 
+            pcb_ptr[curr_proc]->f_array[j].inode = dentry.inode_num;
+            pcb_ptr[curr_proc]->f_array[j].f_pos = 0;
             break;
         }
     }
@@ -224,7 +251,7 @@ int32_t syscall_open(const uint8_t* filename){
         temp_f_op_tbl.write = &rtc_write;
         temp_f_op_tbl.close = &rtc_close;
 
-        pcb_ptr[curr]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
     else if ((dentry.f_type) == 1){
         f_op_tbl_t temp_f_op_tbl;
@@ -234,7 +261,7 @@ int32_t syscall_open(const uint8_t* filename){
         temp_f_op_tbl.write = &dir_write;
         temp_f_op_tbl.close = &dir_close;
 
-        pcb_ptr[curr]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
     else if ((dentry.f_type) == 2){
         f_op_tbl_t temp_f_op_tbl;
@@ -244,7 +271,7 @@ int32_t syscall_open(const uint8_t* filename){
         temp_f_op_tbl.write = &file_write;
         temp_f_op_tbl.close = &file_close;
 
-        pcb_ptr[curr]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
     }
     else{
         return -1;
