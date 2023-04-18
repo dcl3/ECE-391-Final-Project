@@ -240,6 +240,10 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
        return -1;
     }
 
+    if (pcb_ptr[curr_proc]->f_array[fd].flags == 0) {
+        return -1;
+    }
+
     return pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->read(fd, buf, nbytes);
 }
 
@@ -259,6 +263,10 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
     // check if the any of the inputs are valid
     if(fd < 0 || fd > MAX_FD || buf == NULL || nbytes < 0 || fd == 0){
        return -1;
+    }
+
+    if (pcb_ptr[curr_proc]->f_array[fd].flags == 0) {
+        return -1;
     }
 
     // pcb_t* temp_pcb = pcb_ptr[curr_proc];
