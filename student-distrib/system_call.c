@@ -81,9 +81,9 @@ int32_t syscall_execute(const uint8_t* command){
         sti();
         return -1;
     }
-
+    int len = strlen((const int8_t*) command);
     int i;
-    for(i = 0 ; i < strlen((const int8_t*) command) ; i++){
+    for(i = 0 ; i < len ; i++){
         if(command[i] == ' '){
             if(cmd_idx > 0)
                 break;
@@ -94,8 +94,8 @@ int32_t syscall_execute(const uint8_t* command){
         }
     }
 
-    for(; i < strlen((const int8_t*) command) ; i++){
-         if(command[i] == ' '){
+    for(; i < len ; i++){
+        if(command[i] == ' '){
             if(arg_idx > 0)
                 break;
         }
@@ -114,9 +114,9 @@ int32_t syscall_execute(const uint8_t* command){
     num_processes += 1;
     curr_proc = num_processes - 1;
 
-    strcpy(pcb_ptr[curr_proc]->args, arg);
-
     pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
+
+    strcpy((int8_t*)(temp_pcb->args), (int8_t*)arg);
 
     // set up ebp and esp property
     register uint32_t saved_ebp asm("ebp");
@@ -324,13 +324,13 @@ int32_t syscall_open(const uint8_t* filename){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
-    if(pcb_ptr[num_processes]->f_array[fd].flags == 0) return -1;
+    if(pcb_ptr[curr_proc]->f_array[fd].flags == 0) return -1;
 
-    pcb_ptr[num_processes]->f_array[fd].flags = 0;
-    pcb_ptr[num_processes]->f_array[fd].f_pos = 0;
-    pcb_ptr[num_processes]->f_array[fd].inode = 0;
+    pcb_ptr[curr_proc]->f_array[fd].flags = 0;
+    pcb_ptr[curr_proc]->f_array[fd].f_pos = 0;
+    pcb_ptr[curr_proc]->f_array[fd].inode = 0;
 
-    pcb_ptr[num_processes]->f_array[fd].f_op_tbl_ptr->close(fd);
+    pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->close(fd);
 
     return 0;
 }
@@ -344,14 +344,14 @@ int32_t syscall_close(int32_t fd){
  *   RETURN VALUE: 
  *   REFERENCE:
  */
-int32_t syscall_getargs(uint8_t buf, int32_t nbytes){
+int32_t syscall_getargs(uint8_t* buf, int32_t nbytes){
     // if there are no arguments
     if(buf == NULL) return -1;
 
     if(pcb_ptr[curr_proc]->args[0] == '\0') return -1;
 
     // copy the current pcb commands
-    strncpy(buf, pcb_ptr[curr_proc]->args, nbytes);
+    strncpy((int8_t*)buf, (int8_t*)pcb_ptr[curr_proc]->args, nbytes);
 
     // return 0 if success 
     return 0;

@@ -1,6 +1,5 @@
 #include "types.h"
 
-#define MAX_F_NAME_LENGTH 32
 
 #define EIGHT_MB 0x0800000
 #define EIGHT_KB 0x2000
