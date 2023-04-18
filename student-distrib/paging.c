@@ -29,3 +29,11 @@ void load_user(uint32_t curr_proc) {
     // 32 * 4MB = 128 MB
     page_directory[USER_DIR_OFF] = ((USER_ADDR + (curr_proc * FOUR_MB)) & UPPER_TEN) | USER_READ_WRITE_P_FOUR_MB;
 }
+
+uint32_t map_user_vid() {
+    // 32 * 4MB = 128 MB
+    vid_page_table[0] = (VIDEO_ADDR & UPPER_TWENTY) | USER_RW_PTE;
+    page_directory[USER_VID_DIR_OFF] = (((unsigned int) vid_page_table) & UPPER_TWENTY) | USER_RW_PDE;
+
+    return USER_VID_DIR_OFF * FOUR_MB;
+}

@@ -26,10 +26,17 @@ int32_t syscall_halt(uint8_t status){
     // close files
     int i;
     for (i = 0; i < MAX_FD; i++) {
-        pcb_ptr[curr_proc]->f_array->f_op_tbl_ptr = NULL;
-        pcb_ptr[curr_proc]->f_array->f_pos = NULL;
-        pcb_ptr[curr_proc]->f_array->flags = NULL;
-        pcb_ptr[curr_proc]->f_array->inode = NULL;
+        pcb_ptr[curr_proc]->f_array[i].f_op_tbl_ptr = NULL;
+        pcb_ptr[curr_proc]->f_array[i].f_pos = NULL;
+        pcb_ptr[curr_proc]->f_array[i].flags = NULL;
+        pcb_ptr[curr_proc]->f_array[i].inode = NULL;
+    }
+
+    if (parent_id == -1) {
+        num_processes -= 1;
+        curr_proc = parent_id;
+
+        syscall_execute((const uint8_t*) "shell");
     }
 
     // set tss for parent
@@ -133,7 +140,7 @@ int32_t syscall_execute(const uint8_t* command){
     // fill in pcb
     temp_pcb->active = 1;
 
-    f_op_tbl_t temp_f_op_tbl;
+    // f_op_tbl_t temp_f_op_tbl;
 
     // initialize file array properties
     for(i = 0 ; i < MAX_FD ; i++){
@@ -143,21 +150,30 @@ int32_t syscall_execute(const uint8_t* command){
     }
 
     // function pointers fot stdin and stdout
-    temp_f_op_tbl.open = &terminal_open;
-    temp_f_op_tbl.read = &terminal_read;
-    temp_f_op_tbl.write = &terminal_write;
-    temp_f_op_tbl.close = &terminal_close;
+    f_op_tbl_std.open = &terminal_open;
+    f_op_tbl_std.read = &terminal_read;
+    f_op_tbl_std.write = &terminal_write;
+    f_op_tbl_std.close = &terminal_close;
 
     // fill in file array for stdin and stdout
-    temp_pcb->f_array[0].f_op_tbl_ptr = &temp_f_op_tbl;
+    temp_pcb->f_array[0].f_op_tbl_ptr = &f_op_tbl_std;
     temp_pcb->f_array[0].flags = 1;
-    temp_pcb->f_array[1].f_op_tbl_ptr = &temp_f_op_tbl;
+    temp_pcb->f_array[1].f_op_tbl_ptr = &f_op_tbl_std;
     temp_pcb->f_array[1].flags = 1;
 
     load_user(curr_proc);
     flush_tlb();
 
-    load_program(dentry.inode_num, num_processes);
+    if (load_program(dentry.inode_num, num_processes) == -1) {
+        num_processes -= 1;
+        curr_proc -= 1;
+
+        load_user(curr_proc);
+        flush_tlb();
+
+        sti();
+        return -1;
+    };
 
     test_user_function = USER_MODE_OFF;
 
@@ -208,11 +224,11 @@ int32_t syscall_execute(const uint8_t* command){
  */
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
     // check if the any of the inputs are valid
-    if(fd < 0 || buf == NULL || nbytes < 0){
+    if(fd < 0 || fd > MAX_FD || buf == NULL || nbytes < 0){
        return -1;
     }
 
-    return (pcb_ptr[curr_proc]->f_array[fd]).f_op_tbl_ptr->read(fd, buf, nbytes);
+    return pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->read(fd, buf, nbytes);
 }
 
 /* 
@@ -229,9 +245,13 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
  */
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
     // check if the any of the inputs are valid
-    if(fd < 0 || fd > 8 || buf == NULL || nbytes < 0){
+    if(fd < 0 || fd > MAX_FD || buf == NULL || nbytes < 0){
        return -1;
     }
+
+    // pcb_t* temp_pcb = pcb_ptr[curr_proc];
+    // f_array_t temp_fa = pcb_ptr[curr_proc]->f_array[fd];
+    // f_op_tbl_t* temp_fop = pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr;
     
     return pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->write(fd, buf, nbytes);
 }
@@ -255,19 +275,19 @@ int32_t syscall_open(const uint8_t* filename){
     }
 
     // allocate an unused file descriptor
-    int curr = -1;
-    int i; 
-    for(i = 0; i < 8; i++){
-        if( pcb_ptr[i]->active == 0){
-            curr = i;
-            break;
-        }
-    }
-    if(curr == -1){
-        return -1;
-    }
+    // int curr = -1;
+    // int i; 
+    // for(i = 0; i < 8; i++){
+    //     if( pcb_ptr[i]->active == 0){
+    //         curr = i;
+    //         break;
+    //     }
+    // }
+    // if(curr == -1){
+    //     return -1;
+    // }
     int j;
-    for(j = 0; j < 8; j++){
+    for(j = 0; j < MAX_FD; j++){
         if(pcb_ptr[curr_proc]->f_array[j].flags == 0){
             pcb_ptr[curr_proc]->f_array[j].flags = 1; 
             pcb_ptr[curr_proc]->f_array[j].inode = dentry.inode_num;
@@ -277,34 +297,34 @@ int32_t syscall_open(const uint8_t* filename){
     }
     // and set up any data necessary to handle the given type of file (directory, RTC device, or regular file).
     if ((dentry.f_type) == 0){
-        f_op_tbl_t temp_f_op_tbl;
+        // f_op_tbl_t temp_f_op_tbl;
 
-        temp_f_op_tbl.open = &rtc_open;
-        temp_f_op_tbl.read = &rtc_read;
-        temp_f_op_tbl.write = &rtc_write;
-        temp_f_op_tbl.close = &rtc_close;
+        f_op_tbl_rtc.open = &rtc_open;
+        f_op_tbl_rtc.read = &rtc_read;
+        f_op_tbl_rtc.write = &rtc_write;
+        f_op_tbl_rtc.close = &rtc_close;
 
-        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &f_op_tbl_rtc;
     }
     else if ((dentry.f_type) == 1){
-        f_op_tbl_t temp_f_op_tbl;
+        // f_op_tbl_t temp_f_op_tbl;
 
-        temp_f_op_tbl.open = &dir_open;
-        temp_f_op_tbl.read = &dir_read;
-        temp_f_op_tbl.write = &dir_write;
-        temp_f_op_tbl.close = &dir_close;
+        f_op_tbl_dir.open = &dir_open;
+        f_op_tbl_dir.read = &dir_read;
+        f_op_tbl_dir.write = &dir_write;
+        f_op_tbl_dir.close = &dir_close;
 
-        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &f_op_tbl_dir;
     }
     else if ((dentry.f_type) == 2){
-        f_op_tbl_t temp_f_op_tbl;
+        // f_op_tbl_t temp_f_op_tbl;
 
-        temp_f_op_tbl.open = &file_open;
-        temp_f_op_tbl.read = &file_read;
-        temp_f_op_tbl.write = &file_write;
-        temp_f_op_tbl.close = &file_close;
+        f_op_tbl_file.open = &file_open;
+        f_op_tbl_file.read = &file_read;
+        f_op_tbl_file.write = &file_write;
+        f_op_tbl_file.close = &file_close;
 
-        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
+        pcb_ptr[curr_proc]->f_array[j].f_op_tbl_ptr = &f_op_tbl_file;
     }
     else{
         return -1;
@@ -322,13 +342,14 @@ int32_t syscall_open(const uint8_t* filename){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
-    if(pcb_ptr[num_processes]->f_array[fd].flags == 0) return -1;
-
-    pcb_ptr[num_processes]->f_array[fd].flags = 0;
-    pcb_ptr[num_processes]->f_array[fd].f_pos = 0;
-    pcb_ptr[num_processes]->f_array[fd].inode = 0;
-
-    pcb_ptr[num_processes]->f_array[fd].f_op_tbl_ptr->close(fd);
+    if (pcb_ptr[curr_proc]->f_array[fd].flags == 0) {
+        return -1;
+    }
+    
+    pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr = NULL;
+    pcb_ptr[curr_proc]->f_array[fd].flags = 0;
+    pcb_ptr[curr_proc]->f_array[fd].f_pos = NULL;
+    pcb_ptr[curr_proc]->f_array[fd].inode = NULL;
 
     return 0;
 }
@@ -346,7 +367,7 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes){
 }
 
 /* 
- * system_halt
+ * syscall_vidmap
  *   DESCRIPTION: 
  *   INPUTS: 
  *   OUTPUTS: 
@@ -354,7 +375,15 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes){
  *   REFERENCE:
  */
 int32_t syscall_vidmap(uint8_t** screen_start){
-    return -1;
+    // verify location is valid
+    if ((uint32_t) screen_start < USER_MODE || (uint32_t) screen_start > (USER_MODE + FOUR_MB)) {
+        return -1;
+    }
+    
+    *screen_start = (uint8_t*) map_user_vid();
+    flush_tlb();
+
+    return 0;
 }
 
 /* 

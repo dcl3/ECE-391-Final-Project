@@ -134,7 +134,13 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
 int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
     inode_t* temp_inode_ptr = inode_ptr + inode_num;
 
-    // uint8_t* buf;
+    uint8_t buf[4];
+
+    read_data(inode_num, 0, (uint8_t*) &buf, 4);
+
+    if (buf[0] != 0x7f || buf[1] != 0x45 || buf[2] != 0x4c || buf[3] != 0x46) {
+        return -1;
+    }
 
     read_data(inode_num, 0, (uint8_t*) 0x08048000, temp_inode_ptr->length);
 
@@ -242,6 +248,8 @@ int32_t file_read (int32_t fd, void* buf, int32_t nbytes) {
 
     // fill dentry based on file
     read_dentry_by_index(i, &dentry);
+
+    pcb_ptr[curr_proc]->f_array[fd].f_pos += nbytes; 
 
     // fill buffer with data
     return read_data(dentry.inode_num, 0, (uint8_t*) buf, nbytes);
