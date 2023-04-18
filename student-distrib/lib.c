@@ -13,6 +13,21 @@ static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
 
+void scroll(void) {
+    int32_t i;
+    for (i = 0; i < (NUM_ROWS - 1) * NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + NUM_COLS) << 1));
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+
+    for (i = (NUM_ROWS - 1) * NUM_COLS; i < NUM_ROWS * NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+    screen_y = NUM_ROWS - 1;
+    update_cursor(screen_x, screen_y);
+}
+
 /* void clear(void);
  * Inputs: void
  * Return Value: none
@@ -199,7 +214,8 @@ void putc(uint8_t c) {
             *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
             *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
             screen_x++;
-            screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            // screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            screen_y = (screen_y + (screen_x / NUM_COLS));
             screen_x %= NUM_COLS;
         }
     }
@@ -210,8 +226,13 @@ void putc(uint8_t c) {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        // screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        screen_y = (screen_y + (screen_x / NUM_COLS));
         screen_x %= NUM_COLS;
+    }
+
+    if (screen_y == NUM_ROWS) {
+        scroll();
     }
     update_cursor(screen_x, screen_y);
 }
