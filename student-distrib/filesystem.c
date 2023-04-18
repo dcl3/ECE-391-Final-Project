@@ -104,6 +104,10 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
     uint32_t inode_idx;
     uint32_t dblock;
     uint32_t data_idx;
+    uint32_t num_bytes_read;
+
+    if(offset >= (inode_ptr + inode)->length)
+        return 0;
 
     // printf("grep size: %d\n", (inode_ptr + inode)->length);
 
@@ -112,7 +116,7 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
 
         // check if we have reached end of file
         if (i + offset > (inode_ptr + inode)->length) {
-            return 0;
+            return num_bytes_read;
         }
 
         // set index within inode block to get correct data block number
@@ -126,9 +130,10 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
 
         // fill in buffer with data
         buf[i] = (dblock_ptr + dblock)->data[data_idx];
+        num_bytes_read++;
     }
 
-    return length;
+    return num_bytes_read;
 };
 
 int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
