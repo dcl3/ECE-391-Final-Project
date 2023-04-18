@@ -240,6 +240,7 @@ int32_t file_read (int32_t fd, void* buf, int32_t nbytes) {
     dentry_t dentry;
     // printf("num_read: %d\n", num_read);
 
+    // find dentry based on inode
     for (i = 0; i < boot_block_ptr->num_dentries; i++) {
         if (boot_block_ptr->dentries[i].inode_num == pcb_ptr[curr_proc]->f_array[fd].inode) {
             break;
@@ -249,10 +250,14 @@ int32_t file_read (int32_t fd, void* buf, int32_t nbytes) {
     // fill dentry based on file
     read_dentry_by_index(i, &dentry);
 
-    pcb_ptr[curr_proc]->f_array[fd].f_pos += nbytes; 
+    int32_t num_bytes_read;
+
+    num_bytes_read = read_data(dentry.inode_num, pcb_ptr[curr_proc]->f_array[fd].f_pos, (uint8_t*) buf, nbytes);
+
+    pcb_ptr[curr_proc]->f_array[fd].f_pos += num_bytes_read;
 
     // fill buffer with data
-    return read_data(dentry.inode_num, 0, (uint8_t*) buf, nbytes);
+    return num_bytes_read;
 }
 
 /* 
