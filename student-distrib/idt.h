@@ -34,6 +34,8 @@
 #define KEYBOARD_ENTRY 0x21
 #define RTC_ENTRY 0x28
 
+uint32_t exception_flag;
+
 /* Externally-visible functions */
 
 /* Initialize both PICs */

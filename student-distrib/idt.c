@@ -9,6 +9,7 @@
 #include "interrupt_link.h"
 #include "rtc.h"
 #include "systemcall_link.h"
+#include "system_call.h"
 
 /* 
  * idt_init
@@ -20,6 +21,7 @@
  *      https://wiki.osdev.org
  */
 void idt_init(void) {
+    exception_flag = 0;
     int i;
 
     for (i = 0; i < NUM_VEC; i++) {
@@ -106,114 +108,152 @@ void idt_init(void) {
 
 // function for Divide Error
 void de(void) {
+    exception_flag = 1;
     printf("Divide Error Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Debug Exception
 void db(void) {
+    exception_flag = 1;
     printf("Debug Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for NMI
 void nmi(void) {
+    exception_flag = 1;
     printf("NMI Interrupt\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Breakpoint exception
 void bp(void) {
+    exception_flag = 1;
     printf("Breakpoint Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Overflow Exception
 void of(void) {
+    exception_flag = 1;
     printf("Overflow Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for BOUND Range Exceed Exception
 void br(void) {
+    exception_flag = 1;
     printf("BOUND Range Exceeded Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Invalid Opcode
 void ud(void) {
+    exception_flag = 1;
     printf("Invalid Opcode Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Device Not Available
 void nm(void) {
+    exception_flag = 1;
     printf("Device Not Available Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Double Fault
 void df(void) {
+    exception_flag = 1;
     printf("Double Fault Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for CSO
 void cso(void) {
+    exception_flag = 1;
     printf("Coprocessor Segment Overrun\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Invalid TSS
 void ts(void) {
+    exception_flag = 1;
     printf("Invalid TSS Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Segment Not Present
 void np(void) {
+    exception_flag = 1;
     printf("Segment Not Present\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Stack Fault
 void sfe(void) {
+    exception_flag = 1;
     printf("Stack Fault Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for  General Protection
 void gp(void) {
+    exception_flag = 1;
     printf("General Protection Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Page Fault
 void pf(void) {
+    exception_flag = 1;
     printf("Page-Fault Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Floating Error
 void mf(void) {
+    exception_flag = 1;
     printf("x87 FPU Floating-Point Error\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Alignment Check
 void ac(void) {
+    exception_flag = 1;
     printf("Alignment Check Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for Machine Check
 void mc(void) {
+    exception_flag = 1;
     printf("Machine-Check Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }
 
 // function for SIMD Floating ponit exception
 void xf(void) {
+    exception_flag = 1;
     printf("SIMD Floating-Point Exception\n");
-    while(1){};
+    syscall_halt((uint8_t) -1);
+    // while(1){};
 }

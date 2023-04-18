@@ -7,6 +7,7 @@
 #include "terminal.h"
 #include "lib.h"
 #include "task_struct.h"
+#include "idt.h"
 
 /* 
  * system_halt
@@ -60,6 +61,10 @@ int32_t syscall_halt(uint8_t status){
 
     // halt_return((uint32_t) halt_jump_ptr, pcb_ptr[parent_id]->saved_esp, pcb_ptr[parent_id]->saved_ebp);
 
+    if (exception_flag) {
+        exception_flag = 0;
+    }
+    
     halt_status = (uint32_t) status;
 
     halt_return();
@@ -344,6 +349,10 @@ int32_t syscall_open(const uint8_t* filename){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
+    if(fd < 0 || fd > MAX_FD){
+       return -1;
+    }
+
     if (pcb_ptr[curr_proc]->f_array[fd].flags == 0) {
         return -1;
     }
