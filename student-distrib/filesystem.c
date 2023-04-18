@@ -78,9 +78,11 @@ int32_t read_dentry_by_index (uint32_t index, dentry_t* dentry) {
     }
     
     // fill in the dentry_t block
-    for (i = 0; i < FILE_NAME_LENGTH; i++) {
-        dentry->f_name[i] = boot_block_ptr->dentries[index].f_name[i];
-    }
+    // for (i = 0; i < FILE_NAME_LENGTH; i++) {
+    //     dentry->f_name[i] = boot_block_ptr->dentries[index].f_name[i];
+    // }
+    strncpy((int8_t*) dentry->f_name, (int8_t*) boot_block_ptr->dentries[index].f_name, MAX_F_NAME_LENGTH);
+    // dentry->f_name[FILE_NAME_LENGTH] = '\0';
     dentry->f_type = boot_block_ptr->dentries[index].f_type;
     for (i = 0; i < DENTRY_RES; i++) {
         dentry->reserved[i] = boot_block_ptr->dentries[index].reserved[i];
@@ -154,9 +156,6 @@ int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
     return 0;
 }
 
-// keeps track of number of times read from directory
-int num_read = 0;
-
 /* 
  * dir_read
  *   DESCRIPTION: reads files from a directory
@@ -169,24 +168,16 @@ int32_t dir_read (int32_t fd, void* buf, int32_t nbytes) {
     int i;
     dentry_t dentry;
     // printf("num_read: %d\n", num_read);
+
+    uint32_t f_pos = pcb_ptr[curr_proc]->f_array[fd].f_pos;
     
     // checks if reached end of directory
-    if (num_read == boot_block_ptr->num_dentries) {
-        // printf("1\n");
-        // printf("num_read: %d\n", num_read);
-        num_read = 0;
-        // printf("num_read: %d\n", num_read);
+    if (f_pos == boot_block_ptr->num_dentries) {
         return 0;
-    // checks if we are reading directory
-    } else if (num_read == 0) {
-        // printf("2\n");
-        read_dentry_by_index(fd, &dentry);
-        num_read += 1;
     // checks if we are reading a file
     } else {
-        // printf("3\n");
-        read_dentry_by_index(num_read, &dentry);
-        num_read += 1;
+        read_dentry_by_index(f_pos, &dentry);
+        pcb_ptr[curr_proc]->f_array[fd].f_pos += 1;
     }
 
     // adds file name to buffer
@@ -194,9 +185,20 @@ int32_t dir_read (int32_t fd, void* buf, int32_t nbytes) {
         *((uint8_t*) buf + i) = dentry.f_name[i];
     }
     // fixes smiley face at end of long file name
-    *((uint8_t *) buf + FILE_NAME_LENGTH) = '\0';
+    // *((uint8_t *) buf + FILE_NAME_LENGTH) = '\0';
 
-    return strlen((int8_t*) dentry.f_name);
+    // printf("%d", strlen((int8_t*) &dentry.f_name));
+
+    // printf("%x", dentry.f_name[33]);
+
+    uint32_t str_len = strlen((int8_t*) dentry.f_name);
+
+    if (strlen > 32) {
+        str_len = 32;
+    }
+
+    // return strlen((int8_t*) dentry.f_name);
+    return str_len;
 }
 
 /* 
