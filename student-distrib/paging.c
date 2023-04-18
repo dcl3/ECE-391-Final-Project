@@ -25,11 +25,13 @@ void paging_init() {
     load_enable_paging(page_directory);
 }
 
+// load into user space
 void load_user(uint32_t curr_proc) {
     // 32 * 4MB = 128 MB
     page_directory[USER_DIR_OFF] = ((USER_ADDR + (curr_proc * FOUR_MB)) & UPPER_TEN) | USER_READ_WRITE_P_FOUR_MB;
 }
 
+// maps to user video memory
 uint32_t map_user_vid() {
     // 32 * 4MB = 128 MB
     vid_page_table[0] = (VIDEO_ADDR & UPPER_TWENTY) | USER_RW_PTE;

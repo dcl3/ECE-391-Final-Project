@@ -202,6 +202,7 @@ int32_t syscall_execute(const uint8_t* command){
     load_user(curr_proc);
     flush_tlb();
 
+    // check if we load the process correctly
     if (load_program(dentry.inode_num, num_processes) == -1) {
         num_processes -= 1;
         curr_proc -= 1;
@@ -213,6 +214,7 @@ int32_t syscall_execute(const uint8_t* command){
         return -1;
     };
 
+    // turn off the user mode
     test_user_function = USER_MODE_OFF;
 
     // int i;

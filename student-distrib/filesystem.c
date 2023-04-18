@@ -138,6 +138,14 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
     return num_bytes_read;
 };
 
+/* 
+ * load_program
+ *   DESCRIPTION: check if num_proc is valid based on inode number
+ *   INPUTS: inode - inode to get data from
+ *           num_proc - number of process in pcb
+ *   OUTPUTS: none
+ *   RETURN VALUE: 0 if success, -1 on failure
+ */
 int32_t load_program(uint32_t inode_num, uint32_t num_proc) {
     inode_t* temp_inode_ptr = inode_ptr + inode_num;
 
