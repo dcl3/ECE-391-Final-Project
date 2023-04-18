@@ -31,6 +31,7 @@ typedef struct pcb {
     uint32_t saved_ebp;
     uint32_t active;
     uint32_t tss_esp0;
+    uint8_t args[MAX_F_NAME_LENGTH];
 } pcb_t;
 
 pcb_t* pcb_ptr[MAX_TASK];
