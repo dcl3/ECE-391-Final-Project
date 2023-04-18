@@ -180,3 +180,24 @@ later we found out that the argument buf is the one that we need to set as
 our frequency for interrupts, rather than the argument nbytes.
 ___________________________________________________________________________
 
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 17                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+When calling cat, we were getting an error where it would not print anything
+despite having the correct file. The problem was that we were not checking
+whether we were reading to the end of the file properly. If we reached the end
+of the file, we would return a 0 instead of the number of bytes read. This
+would cause the while loop in the cat function to not enter and would skip
+over the the write that we needed to do.
+___________________________________________________________________________
+
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 18                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+We had a problem where ls function was not working properly. The problem was
+that the strlen function that we had would not return the correct nubmer of bytes
+when the file name was longer than 32 bytes. We fixed this by changing the
+maximum length that the strlen function would return.
+___________________________________________________________________________
