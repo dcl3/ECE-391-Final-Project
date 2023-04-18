@@ -37,4 +37,9 @@ typedef struct pcb {
 
 pcb_t* pcb_ptr[MAX_TASK];
 
+f_op_tbl_t f_op_tbl_std;
+f_op_tbl_t f_op_tbl_rtc;
+f_op_tbl_t f_op_tbl_dir;
+f_op_tbl_t f_op_tbl_file;
+
 #endif /* _task_struct_H */
