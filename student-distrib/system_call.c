@@ -114,6 +114,8 @@ int32_t syscall_execute(const uint8_t* command){
     num_processes += 1;
     curr_proc = num_processes - 1;
 
+    strcpy(pcb_ptr[curr_proc]->args, arg);
+
     pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
 
     // set up ebp and esp property
@@ -334,15 +336,25 @@ int32_t syscall_close(int32_t fd){
 }
 
 /* 
- * system_halt
- *   DESCRIPTION: 
- *   INPUTS: 
+ * system_getargs
+ *   DESCRIPTION: reads the program’s command line arguments into a user-level buffer.
+ *   INPUTS: buf-
+ *           nbytes-
  *   OUTPUTS: 
  *   RETURN VALUE: 
  *   REFERENCE:
  */
-int32_t syscall_getargs(uint8_t* buf, int32_t nbytes){
-    return -1;
+int32_t syscall_getargs(uint8_t buf, int32_t nbytes){
+    // if there are no arguments
+    if(buf == NULL) return -1;
+
+    if(pcb_ptr[curr_proc]->args[0] == '\0') return -1;
+
+    // copy the current pcb commands
+    strncpy(buf, pcb_ptr[curr_proc]->args, nbytes);
+
+    // return 0 if success 
+    return 0;
 }
 
 /* 
