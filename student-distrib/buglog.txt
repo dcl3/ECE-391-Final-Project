@@ -171,7 +171,7 @@ ___________________________________________________________________________
 *Checkpoint 4:
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-                                BUG LOG 16                                 | 
+                                BUG LOG 14                                | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
 when we use syscall_write to rtc_wrtie the frequency of the interrupts of
 how quick it should switch from one frame to another, we found out that
@@ -182,7 +182,7 @@ ___________________________________________________________________________
 
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-                                BUG LOG 17                                 | 
+                                BUG LOG 15                                | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
 When calling cat, we were getting an error where it would not print anything
 despite having the correct file. The problem was that we were not checking
@@ -194,10 +194,29 @@ ___________________________________________________________________________
 
 ___________________________________________________________________________
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
-                                BUG LOG 18                                 | 
+                                BUG LOG 16                                | 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
 We had a problem where ls function was not working properly. The problem was
 that the strlen function that we had would not return the correct nubmer of bytes
 when the file name was longer than 32 bytes. We fixed this by changing the
 maximum length that the strlen function would return.
+___________________________________________________________________________
+
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 17                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+There was a problem with our bound checking when trying to execute more
+processes than we had allocated for. This would cause a page fault and the
+OS would loop. We had to had a bound check to not try and execute another
+program when we have reached the max amount of processes.
+___________________________________________________________________________
+
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 18                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Page faulting on commands and arguments that were too long. We did not
+have bound checking on whether the commands and arguments would fit into
+their respective buffers.
 ___________________________________________________________________________
