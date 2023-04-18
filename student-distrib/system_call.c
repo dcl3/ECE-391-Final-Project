@@ -157,15 +157,20 @@ int32_t syscall_execute(const uint8_t* command){
     }
 
     // function pointers fot stdin and stdout
-    f_op_tbl_std.open = &terminal_open;
-    f_op_tbl_std.read = &terminal_read;
-    f_op_tbl_std.write = &terminal_write;
-    f_op_tbl_std.close = &terminal_close;
+    f_op_tbl_stdin.open = &terminal_open;
+    f_op_tbl_stdin.read = &terminal_read;
+    f_op_tbl_stdin.write = NULL;
+    f_op_tbl_stdin.close = &terminal_close;
+
+    f_op_tbl_stdout.open = &terminal_open;
+    f_op_tbl_stdout.read = NULL;
+    f_op_tbl_stdout.write = &terminal_write;
+    f_op_tbl_stdout.close = &terminal_close;
 
     // fill in file array for stdin and stdout
-    temp_pcb->f_array[0].f_op_tbl_ptr = &f_op_tbl_std;
+    temp_pcb->f_array[0].f_op_tbl_ptr = &f_op_tbl_stdin;
     temp_pcb->f_array[0].flags = 1;
-    temp_pcb->f_array[1].f_op_tbl_ptr = &f_op_tbl_std;
+    temp_pcb->f_array[1].f_op_tbl_ptr = &f_op_tbl_stdout;
     temp_pcb->f_array[1].flags = 1;
 
     load_user(curr_proc);
@@ -231,7 +236,7 @@ int32_t syscall_execute(const uint8_t* command){
  */
 int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
     // check if the any of the inputs are valid
-    if(fd < 0 || fd > MAX_FD || buf == NULL || nbytes < 0){
+    if(fd < 0 || fd > MAX_FD || buf == NULL || nbytes < 0 || fd == 1){
        return -1;
     }
 
@@ -252,7 +257,7 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
  */
 int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
     // check if the any of the inputs are valid
-    if(fd < 0 || fd > MAX_FD || buf == NULL || nbytes < 0){
+    if(fd < 0 || fd > MAX_FD || buf == NULL || nbytes < 0 || fd == 0){
        return -1;
     }
 
