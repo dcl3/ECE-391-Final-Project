@@ -127,7 +127,8 @@ int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes){
  *   REFERENCE:
  *      https://wiki.osdev.org/RTC
  */
-int32_t rtc_write(int32_t fd, const void* buf, int32_t freq){
+int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes){
+    int32_t freq = *((int *) buf);
     /* check if the freq is power of 2*/
     if(!(((freq & (freq-1)) == 0) && (freq > 0))){      
         return -1;                                      // if not, return -1
@@ -139,7 +140,7 @@ int32_t rtc_write(int32_t fd, const void* buf, int32_t freq){
     int i;
     for(i = 0; i < 15; i++){
         if(valid_freq[i] == freq){
-            rate = 14 - i;
+            rate = 15-i;
             break;
         }
     }
