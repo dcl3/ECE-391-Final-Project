@@ -193,7 +193,7 @@ int32_t dir_read (int32_t fd, void* buf, int32_t nbytes) {
 
     uint32_t str_len = strlen((int8_t*) dentry.f_name);
 
-    if (strlen > 32) {
+    if (str_len > (uint32_t) 32) {
         str_len = 32;
     }
 
