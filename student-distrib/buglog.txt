@@ -166,3 +166,17 @@ temp_f_op_tbl.close = &rtc_close;
 pcb[curr].f_array[j].f_op_tbl_ptr = &temp_f_op_tbl;
 ___________________________________________________________________________
 
+
+
+*Checkpoint 4:
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 16                                 | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+when we use syscall_write to rtc_wrtie the frequency of the interrupts of
+how quick it should switch from one frame to another, we found out that
+our fish is much slower compare to the example provided from brokeos,
+later we found out that the argument buf is the one that we need to set as
+our frequency for interrupts, rather than the argument nbytes.
+___________________________________________________________________________
+
