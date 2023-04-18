@@ -353,7 +353,7 @@ int32_t syscall_close(int32_t fd){
     pcb_ptr[curr_proc]->f_array[fd].f_pos = NULL;
     pcb_ptr[curr_proc]->f_array[fd].inode = NULL;
 
-    pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->close(fd);
+    // pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->close(fd);
 
     return 0;
 }

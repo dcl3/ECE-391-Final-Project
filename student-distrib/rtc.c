@@ -68,8 +68,8 @@ void rtc_handler(void){
  */
 int32_t rtc_open(const uint8_t* filename){
     /* set the frequency to the corresponding value as explained in the Description */
-    int freq = RTC_2Hz_FREQ;                
-    rtc_set_freq(freq);
+    int rate = RTC_2Hz_FREQ;                
+    rtc_set_freq(rate);
 
     /* return 0 if is successful */
     return 0;                               
@@ -137,12 +137,15 @@ int32_t rtc_write(int32_t fd, const void* buf, int32_t freq){
     int valid_freq[15] = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
     char rate = 0;
     int i;
-    for(i =0; i < 15; i++){
+    for(i = 0; i < 15; i++){
         if(valid_freq[i] == freq){
-            rate = i + 1;
+            rate = 14 - i;
             break;
         }
     }
+
+
+    // freq = 32768 >> (rate-1)
      
     /* check if the rate is out of bounds*/
     if(rate <= 2 || rate > 15){                         // rate must be above 2 and not over 15
