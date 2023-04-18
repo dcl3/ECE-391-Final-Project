@@ -106,7 +106,7 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t lengt
     uint32_t inode_idx;
     uint32_t dblock;
     uint32_t data_idx;
-    uint32_t num_bytes_read;
+    uint32_t num_bytes_read = 0;
 
     if(offset >= (inode_ptr + inode)->length)
         return 0;
