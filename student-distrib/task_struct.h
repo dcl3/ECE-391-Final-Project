@@ -7,7 +7,7 @@
 #include "types.h"
 
 #define MAX_FD 8
-#define MAX_TASK 2
+#define MAX_TASK 3
 #define MAX_F_NAME_LENGTH 32
 
 typedef struct f_op_tbl {

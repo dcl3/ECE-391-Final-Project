@@ -84,6 +84,10 @@ int32_t syscall_execute(const uint8_t* command){
     int cmd_idx = 0;
     int arg_idx = 0;
 
+    if (num_processes == MAX_TASK) {
+        return -1;
+    }
+
     uint8_t cmd[MAX_F_NAME_LENGTH] = { '\0' };
     uint8_t arg[MAX_F_NAME_LENGTH] = { '\0' };
     cli();
@@ -96,6 +100,10 @@ int32_t syscall_execute(const uint8_t* command){
     int len = strlen((const int8_t*) command);
     int i;
     for(i = 0 ; i < len ; i++){
+        if (i == MAX_F_NAME_LENGTH) {
+            sti();
+            return -1;
+        }
         if(command[i] == ' '){
             if(cmd_idx > 0)
                 break;
@@ -107,6 +115,10 @@ int32_t syscall_execute(const uint8_t* command){
     }
 
     for(; i < len ; i++){
+        if (i - cmd_idx - 1 == MAX_F_NAME_LENGTH) {
+            sti();
+            return -1;
+        }
         if(command[i] == ' '){
             if(arg_idx > 0)
                 break;
