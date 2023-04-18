@@ -294,7 +294,9 @@ int32_t syscall_open(const uint8_t* filename){
     //     return -1;
     // }
     int j;
-    for(j = 0; j < MAX_FD; j++){
+    for(j = 0; j <= MAX_FD; j++){
+        if(j == MAX_FD)
+            return -1;
         if(pcb_ptr[curr_proc]->f_array[j].flags == 0){
             pcb_ptr[curr_proc]->f_array[j].flags = 1; 
             pcb_ptr[curr_proc]->f_array[j].inode = dentry.inode_num;
@@ -349,7 +351,7 @@ int32_t syscall_open(const uint8_t* filename){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
-    if(fd < 0 || fd > MAX_FD){
+    if(fd < 2 || fd > MAX_FD){
        return -1;
     }
 
