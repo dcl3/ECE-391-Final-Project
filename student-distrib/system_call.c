@@ -11,11 +11,11 @@
 
 /* 
  * system_halt
- *   DESCRIPTION: 
- *   INPUTS: 
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ *   DESCRIPTION: e halt system call terminates a process, returning the specified value to its parent process.
+ *   INPUTS: status
+ *   OUTPUTS: None
+ *   RETURN VALUE: This call should never return to the caller (-1 if successful).
+ *   REFERENCE: MP3 Documentation
  */
 int32_t syscall_halt(uint8_t status){
     // get parent process
@@ -33,6 +33,7 @@ int32_t syscall_halt(uint8_t status){
         pcb_ptr[curr_proc]->f_array[i].inode = NULL;
     }
 
+    // restore the information of that particular process
     if (parent_id == -1) {
         num_processes -= 1;
         curr_proc = parent_id;
@@ -48,6 +49,7 @@ int32_t syscall_halt(uint8_t status){
     load_user(parent_id);
     flush_tlb();
 
+    // mark the pcb active
     pcb_ptr[parent_id]->active = 1;
 
     halt_jump_ptr_arg = halt_jump_ptr;
@@ -61,12 +63,15 @@ int32_t syscall_halt(uint8_t status){
 
     // halt_return((uint32_t) halt_jump_ptr, pcb_ptr[parent_id]->saved_esp, pcb_ptr[parent_id]->saved_ebp);
 
+    // if the exception flag is on, turn it off
     if (exception_flag) {
         exception_flag = 0;
     }
     
+    // set the halt status
     halt_status = (uint32_t) status;
 
+    // return from halt
     halt_return();
 
     return -1;
@@ -74,16 +79,19 @@ int32_t syscall_halt(uint8_t status){
 
 /* 
  * system_execute
- *   DESCRIPTION: 
- *   INPUTS: 
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ *   DESCRIPTION: The execute system call attempts to load and execute a new program, handing off the processor to the new program
+ * until it terminates.
+ *   INPUTS: command - commands coming from user input
+ *   OUTPUTS: based off the commands user give
+ *   RETURN VALUE: -1 if unseccusful, otherwise successful
+ *   REFERENCE: MP3 Documentation
  */
 int32_t syscall_execute(const uint8_t* command){
+    // parse the user input into command and argument
     int cmd_idx = 0;
     int arg_idx = 0;
 
+    // if the exceed the max tasks, reutrn fail
     if (num_processes == MAX_TASK) {
         return -1;
     }
@@ -97,6 +105,8 @@ int32_t syscall_execute(const uint8_t* command){
         sti();
         return -1;
     }
+
+    // get the command
     int len = strlen((const int8_t*) command);
     int i;
     for(i = 0 ; i < len ; i++){
@@ -114,6 +124,7 @@ int32_t syscall_execute(const uint8_t* command){
         }
     }
 
+    // get the argument
     for(; i < len ; i++){
         if (i - cmd_idx - 1 == MAX_F_NAME_LENGTH) {
             sti();
@@ -129,12 +140,14 @@ int32_t syscall_execute(const uint8_t* command){
         }
     }
 
+    // check if is valid command
     dentry_t dentry;
     if (read_dentry_by_name(cmd, &dentry) == -1) {
         sti();
         return -1;
     };
 
+    // update the current pcb
     num_processes += 1;
     curr_proc = num_processes - 1;
 
@@ -148,6 +161,7 @@ int32_t syscall_execute(const uint8_t* command){
     temp_pcb->saved_ebp = saved_ebp;
     temp_pcb->saved_esp = saved_esp;
 
+    // update the parent_id
     if (num_processes == 1) {
         temp_pcb->parent_id = -1;
         temp_pcb->id = curr_proc;
@@ -252,10 +266,12 @@ int32_t syscall_read(int32_t fd, void* buf, int32_t nbytes){
        return -1;
     }
 
+    // check if we can read from an empty file
     if (pcb_ptr[curr_proc]->f_array[fd].flags == 0) {
         return -1;
     }
 
+    // functionalites for read
     return pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->read(fd, buf, nbytes);
 }
 
@@ -277,6 +293,7 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
        return -1;
     }
 
+    // check if we can write from an empty file
     if (pcb_ptr[curr_proc]->f_array[fd].flags == 0) {
         return -1;
     }
@@ -285,6 +302,7 @@ int32_t syscall_write(int32_t fd, const void* buf, int32_t nbytes){
     // f_array_t temp_fa = pcb_ptr[curr_proc]->f_array[fd];
     // f_op_tbl_t* temp_fop = pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr;
     
+    // perfrom the functionalities for write
     return pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->write(fd, buf, nbytes);
 }
 
@@ -301,6 +319,8 @@ int32_t syscall_open(const uint8_t* filename){
     if(filename == NULL){
         return -1;
     }
+
+    // check if the filename is valid
     dentry_t dentry;
     if (read_dentry_by_name(filename, &dentry) == -1){
         return -1;
@@ -318,6 +338,7 @@ int32_t syscall_open(const uint8_t* filename){
     // if(curr == -1){
     //     return -1;
     // }
+    // setup the pcb with this filename
     int j;
     for(j = 0; j <= MAX_FD; j++){
         if(j == MAX_FD)
@@ -364,6 +385,7 @@ int32_t syscall_open(const uint8_t* filename){
         return -1;
     }
 
+    // anything other than -1 is success.
     return j;
 }
 
@@ -376,14 +398,17 @@ int32_t syscall_open(const uint8_t* filename){
  *   REFERENCE: ECE391 MP3 Documentation
  */
 int32_t syscall_close(int32_t fd){
-    if(fd < 2 || fd > MAX_FD){
+    // check if fd is within required bond 
+    if(fd < MIN_FD || fd > MAX_FD){
        return -1;
     }
 
+    // check is fd is valid
     if (pcb_ptr[curr_proc]->f_array[fd].flags == 0) {
         return -1;
     }
     
+    // clean up that pcb
     pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr = NULL;
     pcb_ptr[curr_proc]->f_array[fd].flags = 0;
     pcb_ptr[curr_proc]->f_array[fd].f_pos = NULL;
@@ -391,22 +416,24 @@ int32_t syscall_close(int32_t fd){
 
     // pcb_ptr[curr_proc]->f_array[fd].f_op_tbl_ptr->close(fd);
 
+    // return successful
     return 0;
 }
 
 /* 
  * system_getargs
  *   DESCRIPTION: reads the program’s command line arguments into a user-level buffer.
- *   INPUTS: buf-
- *           nbytes-
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ *   INPUTS: buf- user level buffer 
+ *           nbytes- number of bytes for that command line
+ *   OUTPUTS: none
+ *   RETURN VALUE: 0 for success, -1 for fail
+ *   REFERENCE: MP3 Documentation
  */
 int32_t syscall_getargs(uint8_t* buf, int32_t nbytes){
     // if there are no arguments
     if(buf == NULL) return -1;
 
+    // if argument is invalid
     if(pcb_ptr[curr_proc]->args[0] == '\0') return -1;
 
     // copy the current pcb commands
@@ -418,11 +445,11 @@ int32_t syscall_getargs(uint8_t* buf, int32_t nbytes){
 
 /* 
  * syscall_vidmap
- *   DESCRIPTION: 
- *   INPUTS: 
- *   OUTPUTS: 
- *   RETURN VALUE: 
- *   REFERENCE:
+ *   DESCRIPTION: The vidmap call maps the text-mode video memory into user space at a pre-set virtual address.
+ *   INPUTS: secreen_start - pointer to user space
+ *   OUTPUTS: none
+ *   RETURN VALUE: 0 for successful, -1 for unseccessful.
+ *   REFERENCE: MP3 Documentation
  */
 int32_t syscall_vidmap(uint8_t** screen_start){
     // verify location is valid
@@ -430,9 +457,11 @@ int32_t syscall_vidmap(uint8_t** screen_start){
         return -1;
     }
     
+    // maps the text-mode video memory into user space
     *screen_start = (uint8_t*) map_user_vid();
     flush_tlb();
 
+    // return success
     return 0;
 }
 

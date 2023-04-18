@@ -7,6 +7,7 @@
 #include "types.h"
 
 #define MAX_FD 8
+#define MIN_FD 2
 #define MAX_TASK 3
 #define MAX_F_NAME_LENGTH 32
 
