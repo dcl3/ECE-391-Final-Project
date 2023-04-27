@@ -160,6 +160,24 @@ int32_t check_for_modifier(uint8_t scancode) {
         }
         return 1;
     }
+    if(scancode == F1) {
+        if(alt_pressed) {
+            switch_terminal(0);
+            return 1;
+        }
+    }
+    if(scancode == F2) {
+        if(alt_pressed) {
+            switch_terminal(1);
+            return 1;
+        }
+    }
+    if(scancode == F3) {
+        if(alt_pressed) {
+            switch_terminal(2);
+            return 1;
+        }
+    }
     if(scancode == CAPS_LOCK) {
         if(caps_lock_pressed)
             caps_lock_pressed = 0;
