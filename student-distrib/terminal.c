@@ -1,13 +1,13 @@
-
+#include "system_call.h"
+#include "paging.h"
+#include "filesystem.h"
+#include "rtc.h"
+#include "systemcall_link.h"
+#include "x86_desc.h"
 #include "terminal.h"
 #include "lib.h"
-#include "keyboard.h"
-#include "system_call.h"
-#include "filesystem.h"
-#include "lib.c"
-#include "paging.c"
 #include "task_struct.h"
-#include "systemcall_link.h"
+#include "idt.h"
 
 void terminal_init() {
     // set up 3 processes (shell x3)
@@ -61,49 +61,67 @@ void terminal_init() {
         load_program(dentry.inode_num, num_processes);
 
         test_user_function = USER_MODE_OFF;
+
+        temp_pcb->tss_esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
+
+        pcb_ptr[curr_proc] = temp_pcb;
     }
 
     // set up 3 terminals as shells as active processes
+    for (i = 0; i < MAX_TERMINALS; i++) {
+        terminals[i].active = 0;
+        terminals[i].active_proc_id = i;
+
+        int j;
+        for (j = 0; j < KEYBOARD_BUFFER_SIZE; j++) {
+            terminals[i].kb_buffer[j] = kb_buffer[j];
+        }
+
+        terminals[i].saved_ebp = pcb_ptr[terminals[i].active_proc_id]->saved_ebp;
+        terminals[i].saved_ebp = pcb_ptr[terminals[i].active_proc_id]->saved_esp;
+
+        // terminals[i].screen_x = screen_x;
+        // terminals[i].screen_x = screen_y;
+    }
 
     // jump into first
-
     curr_terminal_id = 0;
 
-    syscall_execute("shell");
+    // turn off the user mode
+    test_user_function = USER_MODE_OFF;
 
+    uint8_t* eip_arg_ptr = (uint8_t*) test_user_function + EIP_OFF;
+    eip_arg = *((uint32_t*) eip_arg_ptr);
+    user_cs_arg = USER_CS;
+    esp_arg = USER_MODE + FOUR_MB - FOUR_B;
+    user_ds_arg = USER_DS;
 
+    tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
+    tss.ss0 = KERNEL_DS;
 
-    terminal_switch(1);
-
-    syscall_execute("shell");
-
-    terminal_switch(2);
-
-    syscall_execute("shell");
-
-    terminal_switch(2);
-
+    // jump to usermode
+    jump_usermode();
 }
 
 void terminal_switch(uint32_t terminal_id) {
-    terminals[curr_terminal_id]->active = 0;
+    // terminals[curr_terminal_id]->active = 0;
 
-    terminals[curr_terminal_id]->active_proc_id = curr_proc;
+    // terminals[curr_terminal_id]->active_proc_id = curr_proc;
 
-    int i;
-    for (i = 0; i < KEYBOARD_BUFFER_SIZE; i++) {
-        terminals[curr_terminal_id]->kb_buffer[i] = kb_buffer[i];
-    }
+    // int i;
+    // for (i = 0; i < KEYBOARD_BUFFER_SIZE; i++) {
+    //     terminals[curr_terminal_id]->kb_buffer[i] = kb_buffer[i];
+    // }
 
-    register uint32_t saved_ebp asm("ebp");
-    register uint32_t saved_esp asm("esp");
-    terminals[curr_terminal_id]->saved_ebp = saved_ebp;
-    terminals[curr_terminal_id]->saved_esp = saved_esp;
+    // register uint32_t saved_ebp asm("ebp");
+    // register uint32_t saved_esp asm("esp");
+    // terminals[curr_terminal_id]->saved_ebp = saved_ebp;
+    // terminals[curr_terminal_id]->saved_esp = saved_esp;
 
-    terminals[curr_terminal_id]->screen_x = screen_x;
-    terminals[curr_terminal_id]->screen_y = screen_y;
+    // terminals[curr_terminal_id]->screen_x = screen_x;
+    // terminals[curr_terminal_id]->screen_y = screen_y;
 
-    memcpy(VIDEO + ((curr_terminal_id + 1) * FOUR_KB), VIDEO, FOUR_KB);
+    // memcpy(VIDEO + ((curr_terminal_id + 1) * FOUR_KB), VIDEO, FOUR_KB);
 
     
 
