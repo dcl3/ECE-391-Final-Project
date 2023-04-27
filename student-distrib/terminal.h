@@ -27,6 +27,8 @@ typedef struct terminal {
 
 terminal_t terminals[MAX_TERMINALS];
 
+void terminal_init();
+
 void terminal_switch(uint32_t terminal_id);
 
 // opens terminal

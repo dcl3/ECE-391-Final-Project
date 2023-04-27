@@ -19,7 +19,7 @@ void terminal_init() {
         num_processes += 1;
         curr_proc = num_processes - 1;
 
-        pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));\
+        pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
 
         register uint32_t saved_ebp asm("ebp");
         register uint32_t saved_esp asm("esp");
@@ -32,10 +32,11 @@ void terminal_init() {
         temp_pcb->active = 1;
 
         // initialize file array properties
-        for (i = 0 ; i < MAX_FD ; i++) {
-            temp_pcb->f_array[i].flags = 0;
-            temp_pcb->f_array[i].f_pos = 0;
-            temp_pcb->f_array[i].inode = 0;
+        int j;
+        for (j = 0 ; j < MAX_FD ; j++) {
+            temp_pcb->f_array[j].flags = 0;
+            temp_pcb->f_array[j].f_pos = 0;
+            temp_pcb->f_array[j].inode = 0;
         }
 
         // function pointers fot stdin and stdout
@@ -78,14 +79,18 @@ void terminal_init() {
         }
 
         terminals[i].saved_ebp = pcb_ptr[terminals[i].active_proc_id]->saved_ebp;
-        terminals[i].saved_ebp = pcb_ptr[terminals[i].active_proc_id]->saved_esp;
+        terminals[i].saved_esp = pcb_ptr[terminals[i].active_proc_id]->saved_esp;
 
         // terminals[i].screen_x = screen_x;
         // terminals[i].screen_x = screen_y;
     }
 
     // jump into first
+    curr_proc = 0;
     curr_terminal_id = 0;
+
+    load_user(0);
+    flush_tlb();
 
     // turn off the user mode
     test_user_function = USER_MODE_OFF;
@@ -104,6 +109,7 @@ void terminal_init() {
 }
 
 void terminal_switch(uint32_t terminal_id) {
+    printf("switch: %d", terminal_id);
     // terminals[curr_terminal_id]->active = 0;
 
     // terminals[curr_terminal_id]->active_proc_id = curr_proc;
