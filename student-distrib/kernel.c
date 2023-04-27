@@ -180,6 +180,7 @@ void entry(unsigned long magic, unsigned long addr) {
     sti();
 
     syscall_execute((const uint8_t*) "shell");
+    
 #ifdef RUN_TESTS
     /* Run tests */
     launch_tests();
