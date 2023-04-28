@@ -66,6 +66,9 @@ void terminal_init() {
         temp_pcb->tss_esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
 
         pcb_ptr[curr_proc] = temp_pcb;
+
+        // store
+        memcpy((uint8_t*) VIDEO_ADDR + ((i + 1) * FOUR_KB), (uint8_t*) VIDEO_ADDR, FOUR_KB);
     }
 
     // set up 3 terminals as shells as active processes
@@ -88,6 +91,7 @@ void terminal_init() {
     // jump into first
     curr_proc = 0;
     curr_terminal_id = 0;
+    terminals[curr_terminal_id].active = 1;
 
     load_user(0);
     flush_tlb();
@@ -109,28 +113,55 @@ void terminal_init() {
 }
 
 void terminal_switch(uint32_t terminal_id) {
-    printf("switch: %d", terminal_id);
-    // terminals[curr_terminal_id]->active = 0;
+    // printf("switch: %d", terminal_id);
+    pcb_ptr[curr_proc]->active = 0;
+    terminals[curr_terminal_id].active = 0;
 
-    // terminals[curr_terminal_id]->active_proc_id = curr_proc;
+    int i;
+    for (i = 0; i < KEYBOARD_BUFFER_SIZE; i++) {
+        terminals[curr_terminal_id].kb_buffer[i] = kb_buffer[i];
+    }
 
-    // int i;
-    // for (i = 0; i < KEYBOARD_BUFFER_SIZE; i++) {
-    //     terminals[curr_terminal_id]->kb_buffer[i] = kb_buffer[i];
-    // }
-
-    // register uint32_t saved_ebp asm("ebp");
-    // register uint32_t saved_esp asm("esp");
-    // terminals[curr_terminal_id]->saved_ebp = saved_ebp;
-    // terminals[curr_terminal_id]->saved_esp = saved_esp;
+    register uint32_t saved_ebp asm("ebp");
+    register uint32_t saved_esp asm("esp");
+    terminals[curr_terminal_id].saved_ebp = saved_ebp;
+    terminals[curr_terminal_id].saved_esp = saved_esp;
 
     // terminals[curr_terminal_id]->screen_x = screen_x;
     // terminals[curr_terminal_id]->screen_y = screen_y;
 
-    // memcpy(VIDEO + ((curr_terminal_id + 1) * FOUR_KB), VIDEO, FOUR_KB);
+    // store
+    memcpy((uint8_t*) VIDEO_ADDR + ((curr_terminal_id + 1) * FOUR_KB), (uint8_t*) VIDEO_ADDR, FOUR_KB);
 
-    
+    // restore
+    memcpy((uint8_t*) VIDEO_ADDR, (uint8_t*) VIDEO_ADDR + ((terminal_id + 1) * FOUR_KB), FOUR_KB);
 
+    curr_terminal_id = terminal_id;
+
+    terminals[curr_terminal_id].active = 1;
+    curr_proc = terminals[curr_terminal_id].active_proc_id;
+
+    for (i = 0; i < KEYBOARD_BUFFER_SIZE; i++) {
+        kb_buffer[i] = terminals[curr_terminal_id].kb_buffer[i];
+    }
+
+    // set tss for parent
+    tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
+    tss.ss0 = KERNEL_DS;
+
+    load_user(curr_proc);
+    flush_tlb();
+
+    // mark the pcb active
+    pcb_ptr[curr_proc]->active = 1;
+    terminals[curr_terminal_id].active_proc_id = curr_proc;
+
+    terminal_switch_esp_arg = terminals[curr_terminal_id].saved_esp;
+    terminal_switch_ebp_arg = terminals[curr_terminal_id].saved_ebp;
+
+    terminal_switch_jump_ptr_arg = halt_jump_ptr;
+
+    terminal_switch_return();
 }
 
 /*

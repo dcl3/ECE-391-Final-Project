@@ -13,6 +13,8 @@ extern void flush_tlb();
 
 extern void halt_return();
 
+extern void terminal_switch_return();
+
 uint32_t test_user_function;
 uint32_t eip_arg;
 uint32_t user_cs_arg;
@@ -22,5 +24,9 @@ uint32_t user_ds_arg;
 uint32_t halt_jump_ptr_arg;
 uint32_t halt_esp_arg;
 uint32_t halt_ebp_arg;
+
+uint32_t terminal_switch_jump_ptr_arg;
+uint32_t terminal_switch_esp_arg;
+uint32_t terminal_switch_ebp_arg;
 
 #endif
