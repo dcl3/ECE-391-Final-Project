@@ -221,7 +221,7 @@ void gp(void) {
 // function for Page Fault
 void pf(void) {
     exception_flag = 1;
-    //printf("Page-Fault Exception\n");
+    printf("Page-Fault Exception\n");
     syscall_halt((uint8_t) -1);
     // while(1){};
 }
