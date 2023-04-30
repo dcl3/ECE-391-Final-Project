@@ -162,18 +162,21 @@ int32_t check_for_modifier(uint8_t scancode) {
     }
     if(scancode == F1) {
         if(alt_pressed) {
+            send_eoi(KEYBOARD_IRQ_NUM);
             terminal_switch(0);
             return 1;
         }
     }
     if(scancode == F2) {
         if(alt_pressed) {
+            send_eoi(KEYBOARD_IRQ_NUM);
             terminal_switch(1);
             return 1;
         }
     }
     if(scancode == F3) {
         if(alt_pressed) {
+            send_eoi(KEYBOARD_IRQ_NUM);
             terminal_switch(2);
             return 1;
         }
