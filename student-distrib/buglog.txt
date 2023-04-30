@@ -245,3 +245,13 @@ and added a flag to set and check everytime when we switch between
 terminals.
 ___________________________________________________________________________
 
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 21                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+Everytime when we switch terminals, our x and y coordinates has moved to
+position where it shouldn't be. So, we created a helper function that takes
+in x and y coordinates as input, and change store it into the global
+variables for x and y coordinates.
+___________________________________________________________________________
+
