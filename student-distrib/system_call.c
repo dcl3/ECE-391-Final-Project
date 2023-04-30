@@ -51,6 +51,7 @@ int32_t syscall_halt(uint8_t status){
 
     // mark the pcb active
     pcb_ptr[parent_id]->active = 1;
+    terminals[curr_terminal_id].active_proc_id = parent_id;
 
     halt_jump_ptr_arg = halt_jump_ptr;
     halt_esp_arg = pcb_ptr[curr_proc]->saved_esp;
@@ -149,9 +150,17 @@ int32_t syscall_execute(const uint8_t* command){
 
     // update the current pcb
     num_processes += 1;
-    curr_proc = num_processes - 1;
+    for (i = 0; i < MAX_TASK; i++) {
+        if (pcb_ptr[i] == NULL) {
+            curr_proc = i;
+            break;
+        } else if (pcb_ptr[i]->active == 0) {
+            curr_proc = i;
+            break;
+        }
+    }
 
-    pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((num_processes) * EIGHT_KB));
+    pcb_t* temp_pcb = (pcb_t*)(EIGHT_MB - ((curr_proc + 1) * EIGHT_KB));
 
     strcpy((int8_t*)(temp_pcb->args), (int8_t*)arg);
 
@@ -161,12 +170,17 @@ int32_t syscall_execute(const uint8_t* command){
     temp_pcb->saved_ebp = saved_ebp;
     temp_pcb->saved_esp = saved_esp;
 
+    uint32_t temp_active_proc_id = terminals[curr_terminal_id].active_proc_id;
+
     // update the parent_id
-    if (num_processes == 1) {
+    // if (num_processes == 1) {
+    if (curr_proc == 0 || curr_proc == 1 || curr_proc == 2) {
         temp_pcb->parent_id = -1;
         temp_pcb->id = curr_proc;
     } else {
-        temp_pcb->parent_id = pcb_ptr[curr_proc - 1]->id;
+        // temp_pcb->parent_id = pcb_ptr[curr_proc - 1]->id;
+        temp_pcb->parent_id = temp_active_proc_id;
+        terminals[curr_terminal_id].active_proc_id = curr_proc;
         temp_pcb->id = curr_proc;
     }
 
@@ -205,7 +219,8 @@ int32_t syscall_execute(const uint8_t* command){
     // check if we load the process correctly
     if (load_program(dentry.inode_num, num_processes) == -1) {
         num_processes -= 1;
-        curr_proc -= 1;
+        curr_proc = temp_active_proc_id;
+        terminals[curr_terminal_id].active_proc_id = temp_active_proc_id;
 
         load_user(curr_proc);
         flush_tlb();

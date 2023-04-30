@@ -15,6 +15,7 @@
 #include "filesystem.h"
 #include "cursor.h"
 #include "system_call.h"
+#include "terminal.h"
 
 #define RUN_TESTS
 
@@ -179,7 +180,10 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     sti();
 
+    terminal_init();
+
     syscall_execute((const uint8_t*) "shell");
+
 #ifdef RUN_TESTS
     /* Run tests */
     launch_tests();

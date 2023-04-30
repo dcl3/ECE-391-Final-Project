@@ -25,6 +25,10 @@
 #define BACKSPACE 0x0E
 #define ENTER 0x1C
 
+#define F1  0x3B
+#define F2  0x3C
+#define F3  0x3D
+
 // initialize the keyboard
 void keyboard_init(void);
 

@@ -17,6 +17,10 @@ void paging_init() {
     // fill page table entry with video memory
     page_table[VIDEO_ADDR / PAGE_SIZE] = (VIDEO_ADDR & UPPER_TWENTY) | READ_WRITE_P;
 
+    page_table[(VIDEO_ADDR / PAGE_SIZE) + 1] = ((VIDEO_ADDR + (1 * FOUR_KB)) & UPPER_TWENTY) | READ_WRITE_P;
+    page_table[(VIDEO_ADDR / PAGE_SIZE) + 2] = ((VIDEO_ADDR + (2 * FOUR_KB)) & UPPER_TWENTY) | READ_WRITE_P;
+    page_table[(VIDEO_ADDR / PAGE_SIZE) + 3] = ((VIDEO_ADDR + (3 * FOUR_KB)) & UPPER_TWENTY) | READ_WRITE_P;
+
     // filled page directories for first four mb and kernel
     page_directory[0] = (((unsigned int) page_table) & UPPER_TWENTY) | READ_WRITE_P;
     page_directory[1] = (KERNEL_ADDR & UPPER_TEN) | READ_WRITE_P_FOUR_MB;

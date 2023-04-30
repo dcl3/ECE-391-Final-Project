@@ -21,6 +21,9 @@ void disable_cursor()
 
 void update_cursor(int x, int y)
 {
+	terminals[curr_terminal_id].screen_x = x;
+	terminals[curr_terminal_id].screen_y = y;
+	
 	uint16_t pos = y * VGA_WIDTH + x;
  
 	outb(0x0F, 0x3D4);
