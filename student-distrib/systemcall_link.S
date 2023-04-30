@@ -107,3 +107,9 @@ terminal_switch_return:
     movl terminal_switch_ebp_arg, %ebp
 
     jmp *terminal_switch_jump_ptr_arg
+
+terminal_switch_return_1:
+    movl terminal_switch_esp_arg, %esp
+    movl terminal_switch_ebp_arg, %ebp
+
+    ret

@@ -75,6 +75,7 @@ void terminal_init() {
     for (i = 0; i < MAX_TERMINALS; i++) {
         terminals[i].active = 0;
         terminals[i].active_proc_id = i;
+        terminals[curr_terminal_id].switch_flag = 0;
 
         int j;
         for (j = 0; j < KEYBOARD_BUFFER_SIZE; j++) {
@@ -92,6 +93,7 @@ void terminal_init() {
     curr_proc = 0;
     curr_terminal_id = 0;
     terminals[curr_terminal_id].active = 1;
+    terminals[curr_terminal_id].switch_flag = 1;
 
     load_user(0);
     flush_tlb();
@@ -107,6 +109,7 @@ void terminal_init() {
 
     tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
     tss.ss0 = KERNEL_DS;
+
 
     // jump to usermode
     jump_usermode();
@@ -156,12 +159,25 @@ void terminal_switch(uint32_t terminal_id) {
     pcb_ptr[curr_proc]->active = 1;
     terminals[curr_terminal_id].active_proc_id = curr_proc;
 
+    if(!(terminals[curr_terminal_id].switch_flag)){
+        terminals[curr_terminal_id].switch_flag = 1;
+        uint8_t* eip_arg_ptr = (uint8_t*) USER_MODE_OFF + EIP_OFF;
+        eip_arg = *((uint32_t*) eip_arg_ptr);
+        user_cs_arg = USER_CS;
+        esp_arg = USER_MODE + FOUR_MB - FOUR_B;
+        user_ds_arg = USER_DS;
+        
+        jump_usermode();
+        return;
+    }
+
     terminal_switch_esp_arg = terminals[curr_terminal_id].saved_esp;
     terminal_switch_ebp_arg = terminals[curr_terminal_id].saved_ebp;
 
     terminal_switch_jump_ptr_arg = halt_jump_ptr;
 
     terminal_switch_return();
+    return;
 }
 
 /*

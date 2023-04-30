@@ -23,6 +23,7 @@ typedef struct terminal {
     uint8_t kb_buffer[KEYBOARD_BUFFER_SIZE];
     uint32_t screen_x;
     uint32_t screen_y;
+    uint32_t switch_flag;
 } terminal_t;
 
 terminal_t terminals[MAX_TERMINALS];
