@@ -220,3 +220,18 @@ Page faulting on commands and arguments that were too long. We did not
 have bound checking on whether the commands and arguments would fit into
 their respective buffers.
 ___________________________________________________________________________
+
+
+
+
+*Checkpoint 5:
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 19                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+when we swap terminals by pressing alt + F#, it switches screens then 
+freezes and doesnt accept any keyboard inputs or anything. later we found 
+out that we need send eoi before the call to the switch function, not 
+after, because you will never return back there.
+___________________________________________________________________________
+
