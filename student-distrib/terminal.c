@@ -198,6 +198,10 @@ void terminal_switch(uint32_t terminal_id) {
         return;
     }
 
+    num_processes--;
+    if(num_processes <3)
+        num_processes = 3;
+
     terminal_switch_esp_arg = terminals[curr_terminal_id].saved_esp;
     terminal_switch_ebp_arg = terminals[curr_terminal_id].saved_ebp;
 
