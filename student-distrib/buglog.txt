@@ -235,3 +235,13 @@ out that we need send eoi before the call to the switch function, not
 after, because you will never return back there.
 ___________________________________________________________________________
 
+___________________________________________________________________________
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+                                BUG LOG 20                                | 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+we forgot to check if the each terminals is active when we switching, 
+and it cause page fault exception because of it. Later we found out 
+and added a flag to set and check everytime when we switch between
+terminals.
+___________________________________________________________________________
+
