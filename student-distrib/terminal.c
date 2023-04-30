@@ -156,7 +156,7 @@ void terminal_switch(uint32_t terminal_id) {
     terminal_coordinate(terminals[curr_terminal_id].screen_x, terminals[curr_terminal_id].screen_y);
     update_cursor(terminals[curr_terminal_id].screen_x, terminals[curr_terminal_id].screen_y);
 
-    printf("terminal = %d\n", curr_terminal_id+1);
+    // printf("terminal = %d\n", curr_terminal_id+1);
 
     // set tss for parent
     tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;
