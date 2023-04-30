@@ -10,6 +10,14 @@
 #include "idt.h"
 #include "cursor.h"
 
+/* 
+ * terminal_init
+ *   DESCRIPTION: Starts up the three terminals to run "shell" 
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   REFERENCE: ECE391 MP3 Documentation
+ */
 void terminal_init() {
     // set up 3 processes (shell x3)
     dentry_t dentry;
@@ -116,6 +124,14 @@ void terminal_init() {
     jump_usermode();
 }
 
+/* 
+ * terminal_switch
+ *   DESCRIPTION: switches between the three terminals
+ *   INPUTS: terminal_id - id of terminal to switch to
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   REFERENCE: ECE391 MP3 Documentation
+ */
 void terminal_switch(uint32_t terminal_id) {
     
     if(terminal_id == curr_terminal_id)

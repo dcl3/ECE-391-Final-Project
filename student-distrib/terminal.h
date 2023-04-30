@@ -28,8 +28,10 @@ typedef struct terminal {
 
 terminal_t terminals[MAX_TERMINALS];
 
+// initiliazes all three terminals
 void terminal_init();
 
+// switches between terminals
 void terminal_switch(uint32_t terminal_id);
 
 // opens terminal
