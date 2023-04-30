@@ -8,6 +8,7 @@
 #include "lib.h"
 #include "task_struct.h"
 #include "idt.h"
+#include "cursor.h"
 
 void terminal_init() {
     // set up 3 processes (shell x3)
@@ -85,8 +86,8 @@ void terminal_init() {
         terminals[i].saved_ebp = pcb_ptr[terminals[i].active_proc_id]->saved_ebp;
         terminals[i].saved_esp = pcb_ptr[terminals[i].active_proc_id]->saved_esp;
 
-        // terminals[i].screen_x = screen_x;
-        // terminals[i].screen_x = screen_y;
+        terminals[i].screen_x = 0;
+        terminals[i].screen_y = 0;
     }
 
     // jump into first
@@ -119,7 +120,7 @@ void terminal_switch(uint32_t terminal_id) {
     
     if(terminal_id == curr_terminal_id)
         return;
-        
+
     // printf("switch: %d", terminal_id);
     pcb_ptr[curr_proc]->active = 0;
     terminals[curr_terminal_id].active = 0;
@@ -151,6 +152,9 @@ void terminal_switch(uint32_t terminal_id) {
     for (i = 0; i < KEYBOARD_BUFFER_SIZE; i++) {
         kb_buffer[i] = terminals[curr_terminal_id].kb_buffer[i];
     }
+
+    terminal_coordinate(terminals[curr_terminal_id].screen_x, terminals[curr_terminal_id].screen_y);
+    update_cursor(terminals[curr_terminal_id].screen_x, terminals[curr_terminal_id].screen_y);
 
     // set tss for parent
     tss.esp0 = EIGHT_MB - ((curr_proc) * EIGHT_KB) - FOUR_B;

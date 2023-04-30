@@ -13,6 +13,11 @@ static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
 
+void terminal_coordinate(int32_t x, int32_t y){
+    screen_x = x;
+    screen_y = y;
+}
+
 void scroll(void) {
     int32_t i;
     for (i = 0; i < (NUM_ROWS - 1) * NUM_COLS; i++) {
