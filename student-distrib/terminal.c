@@ -116,6 +116,10 @@ void terminal_init() {
 }
 
 void terminal_switch(uint32_t terminal_id) {
+    
+    if(terminal_id == curr_terminal_id)
+        return;
+        
     // printf("switch: %d", terminal_id);
     pcb_ptr[curr_proc]->active = 0;
     terminals[curr_terminal_id].active = 0;
@@ -161,6 +165,7 @@ void terminal_switch(uint32_t terminal_id) {
 
     if(!(terminals[curr_terminal_id].switch_flag)){
         terminals[curr_terminal_id].switch_flag = 1;
+
         uint8_t* eip_arg_ptr = (uint8_t*) USER_MODE_OFF + EIP_OFF;
         eip_arg = *((uint32_t*) eip_arg_ptr);
         user_cs_arg = USER_CS;
